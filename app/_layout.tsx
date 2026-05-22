@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -134,5 +134,14 @@ function RouteGate() {
     }
   }, [status, segments, router]);
 
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="auth/sign-in" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="sync" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="assets/index" />
+      <Stack.Screen name="assets/[id]" />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
 }
