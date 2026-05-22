@@ -8,7 +8,12 @@ export default function RootLayout() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    initI18n().then(() => setReady(true));
+    initI18n()
+      .then(() => setReady(true))
+      .catch((err) => {
+        console.error('i18n init failed', err);
+        setReady(true);
+      });
   }, []);
 
   if (!ready) {
