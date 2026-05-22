@@ -28,5 +28,26 @@
       "network": "Network error — try again",
       "generic": "Sign-in failed. Please try again."
     }
+  },
+  "assets": {
+    "title": "Assets",
+    "search": "Search assets…",
+    "empty": "No assets found.",
+    "loading": "Loading assets…",
+    "field": {
+      "code": "Asset Code",
+      "name": "Asset Name",
+      "category": "Category",
+      "department": "Department",
+      "location": "Location",
+      "quantity": "Quantity",
+      "remainQty": "Remain Qty",
+      "price": "Price",
+      "totalAmount": "Total Amount",
+      "inputDate": "Input Date",
+      "acquireDate": "Acquire Date",
+      "assetLife": "Asset Life",
+      "remark": "Remark"
+    }
   }
 }
