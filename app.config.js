@@ -22,6 +22,7 @@ module.exports = (_ctx) => {
   customer = {
     ...customer,
     serverBaseUrl: process.env.APP_SERVER_BASE_URL ?? customer.serverBaseUrl,
+    apiImpl: process.env.APP_API_IMPL ?? customer.apiImpl,
   };
 
   return {

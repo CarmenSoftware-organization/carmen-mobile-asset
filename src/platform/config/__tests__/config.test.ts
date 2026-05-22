@@ -6,6 +6,7 @@ describe('loadConfig', () => {
     expect(cfg.customerSlug).toBe('default');
     expect(cfg.serverBaseUrl).toBe('http://localhost:4000');
     expect(cfg.brandName).toBe('Carmen Asset');
+    expect(cfg.apiImpl).toBe('mock');
   });
 
   it('overrides serverBaseUrl from env', () => {
@@ -14,6 +15,11 @@ describe('loadConfig', () => {
       APP_SERVER_BASE_URL: 'https://api.example.com',
     });
     expect(cfg.serverBaseUrl).toBe('https://api.example.com');
+  });
+
+  it('overrides apiImpl from env', () => {
+    const cfg = loadConfig({ APP_API_IMPL: 'http' });
+    expect(cfg.apiImpl).toBe('http');
   });
 
   it('throws on unknown customer slug', () => {

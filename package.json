@@ -4,10 +4,14 @@
   "main": "expo-router/entry",
   "dependencies": {
     "@expo/metro-runtime": "~56.0.11",
+    "@react-native-community/netinfo": "12.0.1",
+    "@tanstack/react-query": "^5.100.11",
     "expo": "~56.0.3",
     "expo-constants": "~56.0.14",
     "expo-linking": "~56.0.11",
     "expo-router": "~56.2.5",
+    "expo-secure-store": "~56.0.4",
+    "expo-sqlite": "~56.0.4",
     "expo-status-bar": "~56.0.4",
     "i18next": "^26.2.0",
     "jest-expo": "~56.0.4",
@@ -17,14 +21,17 @@
     "react-native": "0.85.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.1",
-    "react-native-web": "^0.21.2"
+    "react-native-web": "^0.21.2",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",
+    "better-sqlite3": "^12.10.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
