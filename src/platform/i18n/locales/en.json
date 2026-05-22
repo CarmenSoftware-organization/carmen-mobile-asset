@@ -53,5 +53,14 @@
   },
   "more": {
     "signOut": "Sign out"
+  },
+  "sync": {
+    "title": "Sync status",
+    "lastSync": "Last successful sync",
+    "never": "Never",
+    "queued": "Queued mutations",
+    "syncNow": "Sync now",
+    "syncing": "Syncing…",
+    "lastError": "Last error"
   }
 }
