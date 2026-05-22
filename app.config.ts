@@ -39,10 +39,12 @@ const config: ExpoConfig = {
   name: customer.brandName,
   slug: `carmen-asset-${customer.customerSlug}`,
   version: '0.1.0',
+  scheme: 'carmenasset',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   assetBundlePatterns: ['**/*'],
+  plugins: ['expo-router'],
   ios: {
     supportsTablet: true,
     bundleIdentifier: `com.carmen.asset.${customer.customerSlug}`,
