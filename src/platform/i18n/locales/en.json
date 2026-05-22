@@ -3,7 +3,8 @@
     "title": "Asset Checker",
     "scanQr": "Scan QR Code",
     "newDocument": "Create New Counting Document",
-    "viewDocuments": "View All Counting Documents"
+    "viewDocuments": "View All Counting Documents",
+    "browseAssets": "Browse assets"
   },
   "tabs": {
     "home": "Home",
@@ -49,5 +50,8 @@
       "assetLife": "Asset Life",
       "remark": "Remark"
     }
+  },
+  "more": {
+    "signOut": "Sign out"
   }
 }
