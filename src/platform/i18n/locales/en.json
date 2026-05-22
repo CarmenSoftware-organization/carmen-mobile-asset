@@ -1,0 +1,19 @@
+{
+  "home": {
+    "title": "Asset Checker",
+    "scanQr": "Scan QR Code",
+    "newDocument": "Create New Counting Document",
+    "viewDocuments": "View All Counting Documents"
+  },
+  "tabs": {
+    "home": "Home",
+    "scan": "Scan",
+    "documents": "Documents",
+    "more": "More"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…"
+  }
+}

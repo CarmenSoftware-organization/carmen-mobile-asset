@@ -5,8 +5,10 @@
   "dependencies": {
     "expo": "~56.0.3",
     "expo-status-bar": "~56.0.4",
+    "i18next": "^26.2.0",
     "jest-expo": "~56.0.4",
     "react": "19.2.3",
+    "react-i18next": "^17.0.8",
     "react-native": "0.85.3"
   },
   "devDependencies": {
