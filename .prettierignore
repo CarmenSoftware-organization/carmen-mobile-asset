@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+dist/
+ios/
+android/
+docs/
+package-lock.json
+.playwright-mcp/
+.superpowers/
