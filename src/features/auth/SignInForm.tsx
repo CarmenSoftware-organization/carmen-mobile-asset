@@ -32,7 +32,7 @@ export function SignInForm({ onSubmit, errorCode }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('auth.title').toUpperCase()}</Text>
+      <Text style={styles.title}>{t('auth.title')}</Text>
       <TextInput
         style={styles.input}
         placeholder={t('auth.username')}
