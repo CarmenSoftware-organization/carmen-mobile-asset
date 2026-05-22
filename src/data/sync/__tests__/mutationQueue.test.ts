@@ -41,4 +41,15 @@ describe('mutationQueue', () => {
     await q.discard(id);
     expect(await q.listFailed()).toEqual([]);
   });
+
+  it('exposes markDone / incrementAttempts / markFailed', async () => {
+    const repo = createPendingMutationRepo(db);
+    const q = createMutationQueue(repo);
+    const id = await q.enqueue('document.upsert', {});
+    await q.incrementAttempts(id, 'boom');
+    await q.markFailed(id, 'boom2');
+    expect(await q.listFailed()).toHaveLength(1);
+    await q.markDone((await q.listFailed())[0].id);
+    expect(await q.listFailed()).toEqual([]);
+  });
 });
