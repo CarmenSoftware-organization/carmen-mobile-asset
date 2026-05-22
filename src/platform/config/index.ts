@@ -1,8 +1,8 @@
-import { defaultConfig } from './config.default';
+import defaultConfig from './customers/default.json';
 import type { ConfigEnv, CustomerConfig } from './types';
 
 const REGISTRY: Record<string, CustomerConfig> = {
-  default: defaultConfig,
+  default: defaultConfig as CustomerConfig,
 };
 
 export function loadConfig(env: ConfigEnv = process.env as ConfigEnv): CustomerConfig {
