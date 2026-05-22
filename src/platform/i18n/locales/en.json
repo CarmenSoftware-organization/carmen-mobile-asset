@@ -15,5 +15,18 @@
     "cancel": "Cancel",
     "save": "Save",
     "loading": "Loading…"
+  },
+  "auth": {
+    "title": "Sign in",
+    "username": "Username",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "error": {
+      "missingFields": "Please enter both username and password",
+      "invalid": "Invalid username or password",
+      "network": "Network error — try again",
+      "generic": "Sign-in failed. Please try again."
+    }
   }
 }
