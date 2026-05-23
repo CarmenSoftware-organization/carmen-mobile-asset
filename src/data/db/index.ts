@@ -25,6 +25,8 @@ export function openDatabase(): Promise<SqlExecutor> {
     const { customerSlug } = loadConfig();
     dbPromise = (async () => {
       const db = await SQLite.openDatabaseAsync(`carmen-${customerSlug}.db`);
+      await db.execAsync('PRAGMA journal_mode = WAL;');
+      await db.execAsync('PRAGMA foreign_keys = ON;');
       const executor = wrap(db);
       await runMigrations(executor, migrations);
       return { db, executor };
