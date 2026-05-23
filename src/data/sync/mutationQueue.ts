@@ -3,6 +3,7 @@ import type { MutationKind, PendingMutation } from '../repos/types';
 
 export interface MutationQueue {
   enqueue<K extends MutationKind>(kind: K, payload: unknown): Promise<string>;
+  markInFlight(id: string): Promise<void>;
   listPending(): Promise<PendingMutation[]>;
   listFailed(): Promise<PendingMutation[]>;
   discard(id: string): Promise<void>;
@@ -34,6 +35,10 @@ export function createMutationQueue(repo: PendingMutationRepo): MutationQueue {
       const id = await repo.enqueue({ idempotencyKey: uuid(), kind, payload });
       notify();
       return id;
+    },
+    async markInFlight(id) {
+      await repo.markInFlight(id);
+      notify();
     },
     listPending: () => repo.listPending(),
     listFailed: () => repo.listFailed(),

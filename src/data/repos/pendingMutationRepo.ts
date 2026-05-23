@@ -37,6 +37,7 @@ function uuid(): string {
 
 export interface PendingMutationRepo {
   enqueue(input: { idempotencyKey: string; kind: MutationKind; payload: unknown }): Promise<string>;
+  markInFlight(id: string): Promise<void>;
   listPending(): Promise<PendingMutation[]>;
   listFailed(): Promise<PendingMutation[]>;
   incrementAttempts(id: string, lastError: string): Promise<void>;
@@ -71,9 +72,12 @@ export function createPendingMutationRepo(db: SqlExecutor): PendingMutationRepo 
     },
     async incrementAttempts(id, lastError) {
       await db.runAsync(
-        'UPDATE pending_mutations SET attempts = attempts + 1, lastError = ? WHERE id = ?',
+        "UPDATE pending_mutations SET attempts = attempts + 1, lastError = ?, status = 'pending' WHERE id = ?",
         [lastError, id],
       );
+    },
+    async markInFlight(id) {
+      await db.runAsync("UPDATE pending_mutations SET status = 'in_flight' WHERE id = ?", [id]);
     },
     async markFailed(id, lastError) {
       await db.runAsync(

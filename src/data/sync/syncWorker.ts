@@ -55,6 +55,7 @@ export function createSyncWorker(deps: SyncWorkerDeps): SyncWorker {
     }
     const m = pending[0];
     useSyncStore.getState().setStatus('syncing');
+    await deps.queue.markInFlight(m.id);
     try {
       await performMutation(deps.api, m);
       await deps.queue.markDone(m.id);

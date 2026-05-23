@@ -70,4 +70,25 @@ describe('pendingMutationRepo', () => {
     await repo.discard(id);
     expect(await repo.listFailed()).toEqual([]);
   });
+
+  it('markInFlight removes the row from listPending', async () => {
+    const repo = createPendingMutationRepo(db);
+    const id = await repo.enqueue({ idempotencyKey: 'a', kind: 'document.upsert', payload: {} });
+    await repo.markInFlight(id);
+    expect(await repo.listPending()).toEqual([]);
+  });
+
+  it('incrementAttempts on an in_flight row revives it to pending', async () => {
+    // When the worker hits a transient error after marking in_flight, it bumps attempts;
+    // we need that mutation to come back as pending so the next drain can retry it.
+    const repo = createPendingMutationRepo(db);
+    const id = await repo.enqueue({ idempotencyKey: 'a', kind: 'document.upsert', payload: {} });
+    await repo.markInFlight(id);
+    // Worker now calls incrementAttempts after the API failure:
+    await repo.incrementAttempts(id, 'boom');
+    // The mutation should be back to pending so the worker can retry.
+    const pending = await repo.listPending();
+    expect(pending).toHaveLength(1);
+    expect(pending[0].attempts).toBe(1);
+  });
 });
