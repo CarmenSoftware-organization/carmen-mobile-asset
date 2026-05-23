@@ -3,20 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SignInForm } from '../../src/features/auth/SignInForm';
-import { useAuth } from '../../src/features/auth/useAuth';
 import { useAuthBundle } from '../../src/features/auth/AuthBundleContext';
 import { CarmenApiError } from '../../src/data/api/errors';
 
 export default function SignInScreen() {
   const bundle = useAuthBundle();
-  const { status } = useAuth();
   const router = useRouter();
   const [errorCode, setErrorCode] = useState<string | undefined>();
-
-  if (status === 'signedIn') {
-    router.replace('/');
-    return null;
-  }
 
   return (
     <SafeAreaView style={styles.container}>

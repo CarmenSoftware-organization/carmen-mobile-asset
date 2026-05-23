@@ -40,7 +40,9 @@ export function createCatalogSync(deps: CatalogSyncDeps): CatalogSync {
       const locs = await deps.api.listLocations({ updatedSince: since });
       if (locs.length > 0) await deps.locationRepo.upsertMany(locs);
       const now = new Date().toISOString();
-      await deps.metaRepo.set(ASSETS_CURSOR_KEY, maxUpdatedAt);
+      if (maxUpdatedAt !== '0') {
+        await deps.metaRepo.set(ASSETS_CURSOR_KEY, maxUpdatedAt);
+      }
       await deps.metaRepo.set(LAST_SUCCESS_KEY, now);
     },
   };

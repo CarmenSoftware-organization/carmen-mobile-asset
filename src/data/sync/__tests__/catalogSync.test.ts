@@ -39,4 +39,21 @@ describe('catalogSync', () => {
     await sync.run();
     expect(await meta.get('catalog_last_success_at')).toMatch(/T/);
   });
+
+  it('does not write cursor when no assets are returned', async () => {
+    const emptyApi = {
+      listAssets: jest.fn(async () => ({ items: [], nextCursor: null, tombstones: [] })),
+      listLocations: jest.fn(async () => []),
+    } as never;
+    const meta = createMetaRepo(db);
+    const sync = createCatalogSync({
+      api: emptyApi,
+      assetRepo: createAssetRepo(db),
+      locationRepo: createLocationRepo(db),
+      metaRepo: meta,
+    });
+    await sync.run();
+    expect(await meta.get('catalog_assets_updated_since')).toBeNull();
+    expect(await meta.get('catalog_last_success_at')).toMatch(/T/);
+  });
 });
