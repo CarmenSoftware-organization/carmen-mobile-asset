@@ -15,6 +15,7 @@ export interface AssetRepo {
   list(opts?: { search?: string }): Promise<Asset[]>;
   findById(id: string): Promise<Asset | null>;
   findByCode(code: string): Promise<Asset | null>;
+  listByLocation(locationId: string): Promise<Asset[]>;
   upsertMany(assets: Asset[]): Promise<void>;
   deleteByIds(ids: string[]): Promise<void>;
 }
@@ -40,6 +41,13 @@ export function createAssetRepo(db: SqlExecutor): AssetRepo {
     async findByCode(code) {
       const row = await db.getFirstAsync<AssetRow>('SELECT * FROM assets WHERE code = ?', [code]);
       return row ? rowToAsset(row) : null;
+    },
+    async listByLocation(locationId) {
+      const rows = await db.getAllAsync<AssetRow>(
+        'SELECT * FROM assets WHERE locationId = ? ORDER BY code',
+        [locationId],
+      );
+      return rows.map(rowToAsset);
     },
     async upsertMany(assets) {
       const now = new Date().toISOString();

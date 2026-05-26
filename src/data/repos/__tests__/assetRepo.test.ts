@@ -85,4 +85,37 @@ describe('assetRepo', () => {
     const found = await repo.findById('a1');
     expect(found).toMatchObject({ serialNo: 'SN-DC-0001', specification: 'Intel i5, 16GB RAM' });
   });
+
+  it('listByLocation returns only that location, ordered by code', async () => {
+    const repo = createAssetRepo(db);
+    const mk = (id: string, code: string, locationId: string | null) => ({
+      id,
+      code,
+      name: code,
+      category: null,
+      department: null,
+      locationId,
+      locationName: null,
+      quantity: 1,
+      remainQty: 1,
+      price: null,
+      currency: null,
+      totalAmount: null,
+      inputDate: null,
+      acquireDate: null,
+      assetLife: null,
+      remark: null,
+      imageUrl: null,
+      serialNo: null,
+      specification: null,
+      updatedAt: '2026-05-22T10:00:00Z',
+    });
+    await repo.upsertMany([
+      mk('a2', 'AST002', 'loc1'),
+      mk('a1', 'AST001', 'loc1'),
+      mk('a3', 'AST003', 'loc2'),
+    ]);
+    const inLoc1 = await repo.listByLocation('loc1');
+    expect(inLoc1.map((a) => a.code)).toEqual(['AST001', 'AST002']);
+  });
 });
