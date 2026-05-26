@@ -101,7 +101,9 @@ export class MockCarmenApi implements CarmenApi {
   }): Promise<CountingDocument[]> {
     return this.network(() => {
       const all = [...this.documents.values()];
-      return (opts.status ? all.filter((d) => d.status === opts.status) : all).map((d) => ({ ...d }));
+      return (opts.status ? all.filter((d) => d.status === opts.status) : all).map((d) => ({
+        ...d,
+      }));
     });
   }
 
@@ -125,7 +127,10 @@ export class MockCarmenApi implements CarmenApi {
 
   async upsertCountEntries(documentId: string, entries: CountEntry[]): Promise<void> {
     return this.network(() => {
-      this.entries.set(documentId, entries.map((e) => ({ ...e })));
+      this.entries.set(
+        documentId,
+        entries.map((e) => ({ ...e })),
+      );
     });
   }
 

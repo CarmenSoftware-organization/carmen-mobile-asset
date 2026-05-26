@@ -64,9 +64,20 @@ export function createCountEntryRepo(db: SqlExecutor): CountEntryRepo {
            photoIds=excluded.photoIds, transferDate=excluded.transferDate,
            updatedAt=excluded.updatedAt, syncedAt=NULL`,
         [
-          e.id, e.documentId, e.assetId, e.unknownCode, e.countQty, e.location,
-          e.observedSerialNo, e.observedSpecification, e.observedRemark, e.comment,
-          JSON.stringify(e.photoIds), e.transferDate, e.scannedAt, e.updatedAt,
+          e.id,
+          e.documentId,
+          e.assetId,
+          e.unknownCode,
+          e.countQty,
+          e.location,
+          e.observedSerialNo,
+          e.observedSpecification,
+          e.observedRemark,
+          e.comment,
+          JSON.stringify(e.photoIds),
+          e.transferDate,
+          e.scannedAt,
+          e.updatedAt,
         ],
       );
     },
@@ -91,10 +102,10 @@ export function createCountEntryRepo(db: SqlExecutor): CountEntryRepo {
     async markSynced(ids) {
       if (ids.length === 0) return;
       const placeholders = ids.map(() => '?').join(',');
-      await db.runAsync(
-        `UPDATE count_entry SET syncedAt = ? WHERE id IN (${placeholders})`,
-        [new Date().toISOString(), ...ids],
-      );
+      await db.runAsync(`UPDATE count_entry SET syncedAt = ? WHERE id IN (${placeholders})`, [
+        new Date().toISOString(),
+        ...ids,
+      ]);
     },
   };
 }

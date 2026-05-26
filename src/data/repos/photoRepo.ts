@@ -17,14 +17,22 @@ export function createPhotoRepo(db: SqlExecutor): PhotoRepo {
          ON CONFLICT(id) DO UPDATE SET
            remoteUrl=excluded.remoteUrl, uploadStatus=excluded.uploadStatus,
            attempts=excluded.attempts, lastError=excluded.lastError`,
-        [p.id, p.entryId, p.localUri, p.remoteUrl, p.capturedAt, p.uploadStatus, p.attempts, p.lastError],
+        [
+          p.id,
+          p.entryId,
+          p.localUri,
+          p.remoteUrl,
+          p.capturedAt,
+          p.uploadStatus,
+          p.attempts,
+          p.lastError,
+        ],
       );
     },
     async listByEntry(entryId) {
-      return db.getAllAsync<Photo>(
-        'SELECT * FROM photo WHERE entryId = ? ORDER BY capturedAt',
-        [entryId],
-      );
+      return db.getAllAsync<Photo>('SELECT * FROM photo WHERE entryId = ? ORDER BY capturedAt', [
+        entryId,
+      ]);
     },
     async findById(id) {
       return db.getFirstAsync<Photo>('SELECT * FROM photo WHERE id = ?', [id]);

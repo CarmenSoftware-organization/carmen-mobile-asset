@@ -35,9 +35,18 @@ async function writeDoc(db: SqlExecutor, doc: CountingDocument, syncedAt: string
        description=excluded.description, updatedAt=excluded.updatedAt,
        syncedAt=excluded.syncedAt`,
     [
-      doc.id, doc.runningNumber, doc.locationId, doc.locationName, doc.status,
-      doc.countDate, doc.commitDate, doc.description, doc.createdBy, doc.createdAt,
-      now, syncedAt,
+      doc.id,
+      doc.runningNumber,
+      doc.locationId,
+      doc.locationName,
+      doc.status,
+      doc.countDate,
+      doc.commitDate,
+      doc.description,
+      doc.createdBy,
+      doc.createdAt,
+      now,
+      syncedAt,
     ],
   );
 }
@@ -67,10 +76,9 @@ export function createCountingDocumentRepo(db: SqlExecutor): CountingDocumentRep
       return rows.map(rowToDoc);
     },
     async findById(id) {
-      const row = await db.getFirstAsync<DocRow>(
-        'SELECT * FROM counting_document WHERE id = ?',
-        [id],
-      );
+      const row = await db.getFirstAsync<DocRow>('SELECT * FROM counting_document WHERE id = ?', [
+        id,
+      ]);
       return row ? rowToDoc(row) : null;
     },
   };

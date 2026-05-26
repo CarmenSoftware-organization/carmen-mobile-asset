@@ -37,7 +37,7 @@ describe('countEntryRepo', () => {
     const repo = createCountEntryRepo(db);
     await repo.upsert(entry);
     await repo.upsert({ ...entry, countQty: 3 });
-    expect((await repo.listByDocument('d1'))).toHaveLength(1);
+    expect(await repo.listByDocument('d1')).toHaveLength(1);
     expect((await repo.findById('e1'))?.countQty).toBe(3);
   });
 

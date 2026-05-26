@@ -91,7 +91,9 @@ describe('MockCarmenApi counting documents', () => {
     expect(committed.commitDate).not.toBeNull();
     await api.upsertCountingDocument(draft({ id: 'd2', status: 'void' }));
     expect((await api.listCountingDocuments({ status: 'draft' })).map((d) => d.id)).toEqual([]);
-    expect((await api.listCountingDocuments({ status: 'committed' })).map((d) => d.id)).toEqual(['d1']);
+    expect((await api.listCountingDocuments({ status: 'committed' })).map((d) => d.id)).toEqual([
+      'd1',
+    ]);
     expect((await api.getCountingDocument('d2'))?.status).toBe('void');
   });
 });
