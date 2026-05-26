@@ -96,4 +96,12 @@ describe('MockCarmenApi counting documents', () => {
     ]);
     expect((await api.getCountingDocument('d2'))?.status).toBe('void');
   });
+
+  it('resets the sequence for a new month', async () => {
+    const api = new MockCarmenApi({ latencyMs: 0 });
+    const june = await api.upsertCountingDocument(draft({ id: 'd1', countDate: '2025-06-15' }));
+    const july = await api.upsertCountingDocument(draft({ id: 'd2', countDate: '2025-07-01' }));
+    expect(june.runningNumber).toBe('CD25060001');
+    expect(july.runningNumber).toBe('CD25070001');
+  });
 });

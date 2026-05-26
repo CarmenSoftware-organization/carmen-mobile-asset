@@ -27,6 +27,7 @@ export class MockCarmenApi implements CarmenApi {
   private assets: Asset[] = seedAssets.map((a) => ({ ...a }));
   private locations: Location[] = seedLocations.map((l) => ({ ...l }));
   private documents = new Map<string, CountingDocument>();
+  // Stored by upsertCountEntries; read by a later slice's listCountEntries.
   private entries = new Map<string, CountEntry[]>();
   private monthSeq = new Map<string, number>();
 
@@ -129,7 +130,7 @@ export class MockCarmenApi implements CarmenApi {
     return this.network(() => {
       this.entries.set(
         documentId,
-        entries.map((e) => ({ ...e })),
+        entries.map((e) => ({ ...e, photoIds: [...e.photoIds] })),
       );
     });
   }
