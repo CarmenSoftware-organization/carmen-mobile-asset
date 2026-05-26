@@ -12,9 +12,14 @@ const PERMANENT_ERROR_CODES = new Set([
   'not_found',
 ]);
 
+// Hooks invoked after a mutation syncs, to write server-assigned values back
+// to local rows. A hook that throws is treated by the worker as a retryable
+// mutation failure (see drainOnce): both the mutations and the repo markSynced
+// writes are idempotent, so re-running on retry is safe.
 export interface SyncReconciler {
   onDocumentUpserted(doc: CountingDocument): Promise<void>;
   onDocumentCommitted(doc: CountingDocument): Promise<void>;
+  /** `entries` is the local payload — upsertCountEntries returns void, so there is no server response. */
   onEntriesUpserted(documentId: string, entries: CountEntry[]): Promise<void>;
   onPhotoUploaded(
     localPhotoId: string,
