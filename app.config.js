@@ -39,6 +39,10 @@ module.exports = (_ctx) => {
         'expo-camera',
         { cameraPermission: 'Allow $(PRODUCT_NAME) to use the camera to scan asset codes.' },
       ],
+      [
+        'expo-image-picker',
+        { cameraPermission: 'Allow $(PRODUCT_NAME) to take photos of assets during a count.' },
+      ],
     ],
     assetBundlePatterns: ['**/*'],
     ios: {

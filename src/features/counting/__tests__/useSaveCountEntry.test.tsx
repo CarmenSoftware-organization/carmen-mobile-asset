@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react-native';
 import { makeMigratedTestDb, type TestDb } from '../../../data/db/__tests__/testDb';
 import { createCountEntryRepo } from '../../../data/repos/countEntryRepo';
 import { createPendingMutationRepo } from '../../../data/repos/pendingMutationRepo';
+import { createPhotoRepo } from '../../../data/repos/photoRepo';
 import { makeWrapper } from './renderCountingHook';
 import { useSaveCountEntry } from '../useSaveCountEntry';
 import type { CountEntry } from '../../../data/api/carmenApi';
@@ -47,6 +48,41 @@ describe('useSaveCountEntry', () => {
     expect(payload.documentId).toBe('d1');
     expect(payload.entries[0].assetId).toBe('a1');
     expect(payload.entries[0].location).toBe('Warehouse A');
+  });
+
+  it('persists buffered photos: inserts rows, appends photoIds, enqueues photo.upload', async () => {
+    const { wrapper } = makeWrapper(db);
+    const { result } = renderHook(() => useSaveCountEntry('d1'), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        assetId: 'a1',
+        countQty: 1,
+        location: 'L',
+        observedSerialNo: '',
+        observedSpecification: '',
+        observedRemark: '',
+        comment: '',
+        photos: [{ id: 'ph1', uri: 'file://a.jpg', mimeType: 'image/jpeg' }],
+      });
+    });
+
+    const entry = await createCountEntryRepo(db).findByDocumentAndAsset('d1', 'a1');
+    expect(entry?.photoIds).toContain('ph1');
+
+    const photos = await createPhotoRepo(db).listByEntry(entry!.id);
+    expect(photos.map((p) => p.id)).toEqual(['ph1']);
+    expect(photos[0].uploadStatus).toBe('queued');
+
+    const pending = await createPendingMutationRepo(db).listPending();
+    const kinds = pending.map((m) => m.kind).sort();
+    expect(kinds).toEqual(['entry.upsert', 'photo.upload']);
+    const photoMut = pending.find((m) => m.kind === 'photo.upload');
+    expect(photoMut?.payload).toMatchObject({
+      id: 'ph1',
+      uri: 'file://a.jpg',
+      mimeType: 'image/jpeg',
+    });
   });
 
   it('reuses the existing entry row (no duplicate) on re-save', async () => {

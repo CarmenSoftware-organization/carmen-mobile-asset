@@ -1,6 +1,16 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useT } from '../../platform/i18n';
+import { uuid } from '../../platform/id';
 import { QtyStepper } from './QtyStepper';
 import { LocationSelect } from './LocationSelect';
 import type { Asset, Location } from '../../data/repos/types';
@@ -20,7 +30,12 @@ interface Props {
   initial: CountEntryFormValues;
   locations: Location[];
   locked?: boolean;
-  onSave: (values: CountEntryFormValues) => void;
+  existingPhotoUris: string[];
+  onCapturePhoto: () => Promise<{ uri: string; mimeType: string } | null>;
+  onSave: (
+    values: CountEntryFormValues,
+    newPhotos: { id: string; uri: string; mimeType: string }[],
+  ) => void;
   onBack: () => void;
 }
 
@@ -40,13 +55,16 @@ export function CountEntryForm({
   initial,
   locations,
   locked,
+  existingPhotoUris,
+  onCapturePhoto,
   onSave,
   onBack,
 }: Props) {
   const t = useT();
   const [values, setValues] = useState<CountEntryFormValues>(initial);
   const [showDiscard, setShowDiscard] = useState(false);
-  const dirty = JSON.stringify(values) !== JSON.stringify(initial);
+  const [newPhotos, setNewPhotos] = useState<{ id: string; uri: string; mimeType: string }[]>([]);
+  const dirty = JSON.stringify(values) !== JSON.stringify(initial) || newPhotos.length > 0;
   const set = (patch: Partial<CountEntryFormValues>) => setValues((v) => ({ ...v, ...patch }));
 
   const handleBack = () => {
@@ -115,6 +133,35 @@ export function CountEntryForm({
           onChangeText={(text) => set({ comment: text })}
         />
 
+        <Text style={styles.fieldLabel}>{t('documents.entry.photos')}</Text>
+        <View style={styles.photoRow}>
+          {existingPhotoUris.map((uri) => (
+            <Image key={uri} source={{ uri }} accessibilityLabel="photo" style={styles.thumb} />
+          ))}
+          {newPhotos.map((p) => (
+            <Image
+              key={p.id}
+              source={{ uri: p.uri }}
+              accessibilityLabel="photo"
+              style={styles.thumb}
+            />
+          ))}
+        </View>
+        {!locked ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('documents.entry.takePhoto')}
+            style={styles.photoBtn}
+            onPress={async () => {
+              const p = await onCapturePhoto();
+              if (p)
+                setNewPhotos((prev) => [...prev, { id: uuid(), uri: p.uri, mimeType: p.mimeType }]);
+            }}
+          >
+            <Text style={styles.photoBtnText}>{t('documents.entry.takePhoto')}</Text>
+          </Pressable>
+        ) : null}
+
         <Text style={styles.fieldLabel}>{t('documents.counted')}</Text>
         <QtyStepper
           value={values.countQty}
@@ -131,7 +178,7 @@ export function CountEntryForm({
           <Pressable
             accessibilityRole="button"
             style={styles.saveBtn}
-            onPress={() => onSave(values)}
+            onPress={() => onSave(values, newPhotos)}
           >
             <Text style={styles.saveText}>{t('documents.entry.save')}</Text>
           </Pressable>
@@ -242,4 +289,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#dc2626',
   },
   dialogConfirmText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  photoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  thumb: { width: 64, height: 64, borderRadius: 8, backgroundColor: '#e5e7eb' },
+  photoBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#475569',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  photoBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 });

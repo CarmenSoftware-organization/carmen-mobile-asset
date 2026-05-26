@@ -44,4 +44,10 @@ describe('i18n', () => {
       'Not found Asset in location: Warehouse A',
     );
   });
+
+  it('resolves the photos + commit keys', () => {
+    expect(t('documents.entry.takePhoto')).toBe('Take Photo');
+    expect(t('documents.commit.action')).toBe('Commit Count');
+    expect(t('documents.commit.confirm')).toBe('Commit');
+  });
 });

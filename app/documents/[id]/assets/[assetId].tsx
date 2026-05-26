@@ -12,6 +12,8 @@ import {
   type CountEntryFormValues,
 } from '../../../../src/features/counting/CountEntryForm';
 import { initialCountQty } from '../../../../src/features/counting/initialCountQty';
+import { capturePhoto } from '../../../../src/features/counting/capturePhoto';
+import { useEntryPhotos } from '../../../../src/features/counting/useEntryPhotos';
 
 export default function AssetInformationScreen() {
   const t = useT();
@@ -29,6 +31,7 @@ export default function AssetInformationScreen() {
   const { data: entry, isLoading: entryLoading } = useCountEntryForAsset(documentId, assetKey);
   const { data: locations } = useLocations();
   const save = useSaveCountEntry(documentId);
+  const { data: photos } = useEntryPhotos(entry?.id ?? '');
 
   const loading = docLoading || assetLoading || entryLoading;
 
@@ -71,8 +74,13 @@ export default function AssetInformationScreen() {
         initial={initial}
         locations={locations ?? []}
         locked={document.status !== 'draft'}
-        onSave={(values) =>
-          save.mutate({ assetId: assetKey, ...values }, { onSuccess: () => router.back() })
+        existingPhotoUris={(photos ?? []).map((p) => p.remoteUrl ?? p.localUri)}
+        onCapturePhoto={capturePhoto}
+        onSave={(values, newPhotos) =>
+          save.mutate(
+            { assetId: assetKey, ...values, photos: newPhotos },
+            { onSuccess: () => router.back() },
+          )
         }
         onBack={() => router.back()}
       />
