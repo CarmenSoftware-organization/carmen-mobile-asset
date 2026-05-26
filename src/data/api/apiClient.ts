@@ -38,18 +38,21 @@ export class ApiClient {
   ): Promise<T> {
     const fetchImpl = this.opts.fetchImpl ?? fetch;
     const url = `${this.opts.baseUrl}${path}`;
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const isFormData = typeof FormData !== 'undefined' && rOpts.body instanceof FormData;
+    const headers: Record<string, string> = {};
+    if (!isFormData) headers['Content-Type'] = 'application/json';
     const token = this.opts.getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
     if (rOpts.idempotencyKey) headers['Idempotency-Key'] = rOpts.idempotencyKey;
 
+    let requestBody: BodyInit | undefined;
+    if (rOpts.body !== undefined) {
+      requestBody = isFormData ? (rOpts.body as FormData) : JSON.stringify(rOpts.body);
+    }
+
     let response: Response;
     try {
-      response = await fetchImpl(url, {
-        method,
-        headers,
-        body: rOpts.body !== undefined ? JSON.stringify(rOpts.body) : undefined,
-      });
+      response = await fetchImpl(url, { method, headers, body: requestBody });
     } catch (err) {
       throw new CarmenApiError('network_error', (err as Error).message, err);
     }

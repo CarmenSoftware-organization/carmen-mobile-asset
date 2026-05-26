@@ -1,5 +1,4 @@
 import { HttpCarmenApi } from '../httpCarmenApi';
-import { CarmenApiError } from '../errors';
 
 function fakeFetch(
   handlers: Record<string, (init: RequestInit) => { status: number; body: unknown }>,
@@ -66,15 +65,109 @@ describe('HttpCarmenApi', () => {
     expect(await api.getAssetByCode('UNKNOWN')).toBeNull();
   });
 
-  it('throws not_implemented for plan-3 methods', async () => {
+  it('listCountingDocuments GETs /counting-documents with status filter', async () => {
+    const fetchImpl = fakeFetch({
+      'GET /counting-documents': () => ({ status: 200, body: [{ id: 'd1' }] }),
+    });
     const api = new HttpCarmenApi({
       baseUrl: 'https://api.test',
       getToken: () => null,
-      fetchImpl: jest.fn() as never,
+      fetchImpl: fetchImpl as never,
     });
-    await expect(
-      api.uploadPhoto({ id: 'p', uri: 'file://x', mimeType: 'image/jpeg' }),
-    ).rejects.toMatchObject({ code: 'not_implemented' });
-    await expect(api.commitCountingDocument('d')).rejects.toBeInstanceOf(CarmenApiError);
+    const docs = await api.listCountingDocuments({ status: 'draft' });
+    expect(docs).toEqual([{ id: 'd1' }]);
+    expect(fetchImpl.mock.calls[0][0] as string).toContain('status=draft');
+  });
+
+  it('getCountingDocument returns the document, or null on 404', async () => {
+    const ok = fakeFetch({
+      'GET /counting-documents/d1': () => ({ status: 200, body: { id: 'd1', status: 'draft' } }),
+    });
+    const apiOk = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: ok as never,
+    });
+    expect(await apiOk.getCountingDocument('d1')).toMatchObject({ id: 'd1' });
+
+    const missing = fakeFetch({
+      'GET /counting-documents/zzz': () => ({ status: 404, body: { code: 'document.not_found' } }),
+    });
+    const apiMissing = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: missing as never,
+    });
+    expect(await apiMissing.getCountingDocument('zzz')).toBeNull();
+  });
+
+  it('upsertCountingDocument POSTs the doc with an Idempotency-Key', async () => {
+    const fetchImpl = fakeFetch({
+      'POST /counting-documents': (init) => ({
+        status: 200,
+        body: JSON.parse(init.body as string),
+      }),
+    });
+    const api = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: fetchImpl as never,
+    });
+    const doc = { id: 'd1', status: 'draft' } as never;
+    const result = await api.upsertCountingDocument(doc, 'idem-1');
+    expect(result).toMatchObject({ id: 'd1' });
+    const headers = (fetchImpl.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(headers['Idempotency-Key']).toBe('idem-1');
+  });
+
+  it('upsertCountEntries PUTs { entries } to the document entries endpoint', async () => {
+    const fetchImpl = fakeFetch({
+      'PUT /counting-documents/d1/entries': () => ({ status: 200, body: {} }),
+    });
+    const api = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: fetchImpl as never,
+    });
+    await api.upsertCountEntries('d1', [{ id: 'e1' } as never], 'idem-2');
+    const init = fetchImpl.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe('PUT');
+    expect(JSON.parse(init.body as string)).toEqual({ entries: [{ id: 'e1' }] });
+  });
+
+  it('commitCountingDocument POSTs to /commit', async () => {
+    const fetchImpl = fakeFetch({
+      'POST /counting-documents/d1/commit': () => ({
+        status: 200,
+        body: { id: 'd1', status: 'committed' },
+      }),
+    });
+    const api = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: fetchImpl as never,
+    });
+    const result = await api.commitCountingDocument('d1', 'idem-3');
+    expect(result).toMatchObject({ status: 'committed' });
+  });
+
+  it('uploadPhoto POSTs multipart FormData to /uploads', async () => {
+    const fetchImpl = fakeFetch({
+      'POST /uploads': () => ({ status: 200, body: { photoId: 'p1', remoteUrl: 'https://cdn/x' } }),
+    });
+    const api = new HttpCarmenApi({
+      baseUrl: 'https://api.test',
+      getToken: () => null,
+      fetchImpl: fetchImpl as never,
+    });
+    const result = await api.uploadPhoto(
+      { id: 'p1', uri: 'file://x.jpg', mimeType: 'image/jpeg' },
+      'idem-4',
+    );
+    expect(result).toEqual({ photoId: 'p1', remoteUrl: 'https://cdn/x' });
+    const init = fetchImpl.mock.calls[0][1] as RequestInit;
+    expect(init.body).toBeInstanceOf(FormData);
+    const headers = init.headers as Record<string, string>;
+    expect(headers['Idempotency-Key']).toBe('idem-4');
   });
 });

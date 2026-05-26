@@ -46,25 +46,28 @@ async function performMutation(
 ): Promise<void> {
   switch (m.kind) {
     case 'document.upsert': {
-      const result = await api.upsertCountingDocument(m.payload as CountingDocument);
+      const result = await api.upsertCountingDocument(
+        m.payload as CountingDocument,
+        m.idempotencyKey,
+      );
       await reconcile?.onDocumentUpserted(result);
       return;
     }
     case 'document.commit': {
       const { id } = m.payload as { id: string };
-      const result = await api.commitCountingDocument(id);
+      const result = await api.commitCountingDocument(id, m.idempotencyKey);
       await reconcile?.onDocumentCommitted(result);
       return;
     }
     case 'entry.upsert': {
       const { documentId, entries } = m.payload as { documentId: string; entries: CountEntry[] };
-      await api.upsertCountEntries(documentId, entries);
+      await api.upsertCountEntries(documentId, entries, m.idempotencyKey);
       await reconcile?.onEntriesUpserted(documentId, entries);
       return;
     }
     case 'photo.upload': {
       const file = m.payload as PhotoUpload;
-      const result = await api.uploadPhoto(file);
+      const result = await api.uploadPhoto(file, m.idempotencyKey);
       await reconcile?.onPhotoUploaded(file.id, result);
       return;
     }

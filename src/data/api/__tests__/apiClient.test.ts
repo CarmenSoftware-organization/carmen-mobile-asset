@@ -90,6 +90,22 @@ describe('ApiClient', () => {
     await expect(client.request('GET', '/x')).rejects.toMatchObject({ code: 'network_error' });
   });
 
+  it('sends FormData bodies as-is without a JSON content-type', async () => {
+    const fakeFetch = makeFetch([{ status: 200, body: { photoId: 'p', remoteUrl: 'r' } }]);
+    const client = new ApiClient({
+      baseUrl: 'https://example.test',
+      getToken: () => null,
+      fetchImpl: fakeFetch as unknown as typeof fetch,
+    });
+    const form = new FormData();
+    form.append('file', 'x');
+    await client.request('POST', '/uploads', { body: form });
+    const init = fakeFetch.mock.calls[0][1] as RequestInit;
+    expect(init.body).toBe(form);
+    const headers = init.headers as Record<string, string>;
+    expect(headers['Content-Type']).toBeUndefined();
+  });
+
   it('retries once after refreshing on 401', async () => {
     const fakeFetch = makeFetch([
       { status: 401, body: { code: 'unauthenticated' } },
