@@ -86,8 +86,8 @@ export interface CarmenApi {
   // mock may implement them for later-plan tests):
   listCountingDocuments(opts: { status?: CountingDocument['status'] }): Promise<CountingDocument[]>;
   getCountingDocument(id: string): Promise<CountingDocument | null>;
-  upsertCountingDocument(doc: CountingDocument): Promise<CountingDocument>;
-  upsertCountEntries(documentId: string, entries: CountEntry[]): Promise<void>;
-  commitCountingDocument(id: string): Promise<CountingDocument>;
-  uploadPhoto(file: PhotoUpload): Promise<{ photoId: string; remoteUrl: string }>;
+  upsertCountingDocument(doc: CountingDocument, idempotencyKey?: string): Promise<CountingDocument>;
+  upsertCountEntries(documentId: string, entries: CountEntry[], idempotencyKey?: string): Promise<void>;
+  commitCountingDocument(id: string, idempotencyKey?: string): Promise<CountingDocument>;
+  uploadPhoto(file: PhotoUpload, idempotencyKey?: string): Promise<{ photoId: string; remoteUrl: string }>;
 }
