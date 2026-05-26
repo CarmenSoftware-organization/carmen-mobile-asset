@@ -107,7 +107,15 @@
       "comment": "Comment",
       "discardTitle": "Discard changes?",
       "discardMessage": "Your edits to this count will be lost.",
-      "discard": "Discard"
+      "discard": "Discard",
+      "takePhoto": "Take Photo",
+      "photos": "Photos"
+    },
+    "commit": {
+      "action": "Commit Count",
+      "title": "Commit this count?",
+      "message": "Once committed, the document is locked and can no longer be edited.",
+      "confirm": "Commit"
     },
     "view": "View"
   },
