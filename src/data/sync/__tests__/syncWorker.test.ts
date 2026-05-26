@@ -100,4 +100,23 @@ describe('SyncWorker', () => {
     await worker.drainOnce();
     expect(api.upsertCountEntries).not.toHaveBeenCalled();
   });
+
+  it('reconciles a document.upsert result after syncing', async () => {
+    const repo = createPendingMutationRepo(db);
+    const q = createMutationQueue(repo);
+    const serverDoc = { id: 'd1', runningNumber: 'CD25060001', status: 'draft' };
+    const api = fakeApi({
+      upsertCountingDocument: jest.fn(async () => serverDoc),
+    });
+    const reconcile = {
+      onDocumentUpserted: jest.fn(async () => undefined),
+      onDocumentCommitted: jest.fn(async () => undefined),
+      onEntriesUpserted: jest.fn(async () => undefined),
+      onPhotoUploaded: jest.fn(async () => undefined),
+    };
+    const worker = createSyncWorker({ queue: q, api, isOnline: () => true, reconcile });
+    await q.enqueue('document.upsert', { id: 'd1' });
+    await worker.drainOnce();
+    expect(reconcile.onDocumentUpserted).toHaveBeenCalledWith(serverDoc);
+  });
 });
