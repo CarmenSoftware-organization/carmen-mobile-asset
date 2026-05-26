@@ -35,8 +35,9 @@ export function useSetCountedQty(documentId: string) {
       await repo.upsert(entry);
       await queue.enqueue('entry.upsert', { documentId, entries: [entry] });
     },
-    onSuccess: () => {
+    onSuccess: (_data, { assetId }) => {
       void qc.invalidateQueries({ queryKey: ['assetCountList', documentId] });
+      void qc.invalidateQueries({ queryKey: ['countEntry', documentId, assetId] });
       void qc.invalidateQueries({ queryKey: ['countingDocuments'] });
     },
   });
