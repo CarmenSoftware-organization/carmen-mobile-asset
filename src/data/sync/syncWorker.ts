@@ -46,7 +46,10 @@ async function performMutation(
 ): Promise<void> {
   switch (m.kind) {
     case 'document.upsert': {
-      const result = await api.upsertCountingDocument(m.payload as CountingDocument, m.idempotencyKey);
+      const result = await api.upsertCountingDocument(
+        m.payload as CountingDocument,
+        m.idempotencyKey,
+      );
       await reconcile?.onDocumentUpserted(result);
       return;
     }

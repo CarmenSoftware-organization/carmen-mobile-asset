@@ -20,7 +20,6 @@ interface HttpOptions {
   onUnauthenticated?: () => Promise<string | null>;
 }
 
-
 function qs(params: Record<string, string | number | undefined>): string {
   const entries = Object.entries(params).filter(([, v]) => v !== undefined);
   if (entries.length === 0) return '';

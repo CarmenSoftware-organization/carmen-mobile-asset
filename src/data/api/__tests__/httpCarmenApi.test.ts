@@ -1,5 +1,4 @@
 import { HttpCarmenApi } from '../httpCarmenApi';
-import { CarmenApiError } from '../errors';
 
 function fakeFetch(
   handlers: Record<string, (init: RequestInit) => { status: number; body: unknown }>,
@@ -104,7 +103,10 @@ describe('HttpCarmenApi', () => {
 
   it('upsertCountingDocument POSTs the doc with an Idempotency-Key', async () => {
     const fetchImpl = fakeFetch({
-      'POST /counting-documents': (init) => ({ status: 200, body: JSON.parse(init.body as string) }),
+      'POST /counting-documents': (init) => ({
+        status: 200,
+        body: JSON.parse(init.body as string),
+      }),
     });
     const api = new HttpCarmenApi({
       baseUrl: 'https://api.test',

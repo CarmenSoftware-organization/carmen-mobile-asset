@@ -115,7 +115,10 @@ export class MockCarmenApi implements CarmenApi {
     });
   }
 
-  async upsertCountingDocument(doc: CountingDocument, _idempotencyKey?: string): Promise<CountingDocument> {
+  async upsertCountingDocument(
+    doc: CountingDocument,
+    _idempotencyKey?: string,
+  ): Promise<CountingDocument> {
     return this.network(() => {
       const existing = this.documents.get(doc.id);
       const runningNumber =
@@ -126,7 +129,11 @@ export class MockCarmenApi implements CarmenApi {
     });
   }
 
-  async upsertCountEntries(documentId: string, entries: CountEntry[], _idempotencyKey?: string): Promise<void> {
+  async upsertCountEntries(
+    documentId: string,
+    entries: CountEntry[],
+    _idempotencyKey?: string,
+  ): Promise<void> {
     return this.network(() => {
       this.entries.set(
         documentId,
@@ -151,7 +158,10 @@ export class MockCarmenApi implements CarmenApi {
     });
   }
 
-  async uploadPhoto(file: PhotoUpload, _idempotencyKey?: string): Promise<{ photoId: string; remoteUrl: string }> {
+  async uploadPhoto(
+    file: PhotoUpload,
+    _idempotencyKey?: string,
+  ): Promise<{ photoId: string; remoteUrl: string }> {
     return this.network(() => ({ photoId: file.id, remoteUrl: `mock://photo/${file.id}` }));
   }
 }

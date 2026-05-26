@@ -87,7 +87,14 @@ export interface CarmenApi {
   listCountingDocuments(opts: { status?: CountingDocument['status'] }): Promise<CountingDocument[]>;
   getCountingDocument(id: string): Promise<CountingDocument | null>;
   upsertCountingDocument(doc: CountingDocument, idempotencyKey?: string): Promise<CountingDocument>;
-  upsertCountEntries(documentId: string, entries: CountEntry[], idempotencyKey?: string): Promise<void>;
+  upsertCountEntries(
+    documentId: string,
+    entries: CountEntry[],
+    idempotencyKey?: string,
+  ): Promise<void>;
   commitCountingDocument(id: string, idempotencyKey?: string): Promise<CountingDocument>;
-  uploadPhoto(file: PhotoUpload, idempotencyKey?: string): Promise<{ photoId: string; remoteUrl: string }>;
+  uploadPhoto(
+    file: PhotoUpload,
+    idempotencyKey?: string,
+  ): Promise<{ photoId: string; remoteUrl: string }>;
 }
