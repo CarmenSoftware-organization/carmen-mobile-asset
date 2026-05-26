@@ -44,3 +44,8 @@ yarn-error.*
 .superpowers/
 .playwright-mcp/
 poc-home.png
+
+# Claude Code (local-only state)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
