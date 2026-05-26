@@ -11,11 +11,16 @@ import {
   CountEntryForm,
   type CountEntryFormValues,
 } from '../../../../src/features/counting/CountEntryForm';
+import { initialCountQty } from '../../../../src/features/counting/initialCountQty';
 
 export default function AssetInformationScreen() {
   const t = useT();
   const router = useRouter();
-  const { id, assetId } = useLocalSearchParams<{ id: string; assetId: string }>();
+  const { id, assetId, accumulate } = useLocalSearchParams<{
+    id: string;
+    assetId: string;
+    accumulate?: string;
+  }>();
   const documentId = id ?? '';
   const assetKey = assetId ?? '';
 
@@ -49,7 +54,7 @@ export default function AssetInformationScreen() {
   }
 
   const initial: CountEntryFormValues = {
-    countQty: entry?.countQty ?? 1,
+    countQty: initialCountQty(entry?.countQty ?? null, accumulate === '1'),
     location: entry?.location ?? document.locationName,
     observedSerialNo: entry?.observedSerialNo ?? asset.serialNo ?? '',
     observedSpecification: entry?.observedSpecification ?? asset.specification ?? '',

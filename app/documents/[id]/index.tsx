@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useT } from '../../../src/platform/i18n';
@@ -87,6 +87,15 @@ export default function CountingDocumentDetailScreen() {
               onCategoryChange={setCategory}
               categories={categories}
             />
+            {!locked ? (
+              <Pressable
+                accessibilityRole="button"
+                style={styles.scanBtn}
+                onPress={() => router.push(`/documents/${documentId}/scan`)}
+              >
+                <Text style={styles.scanText}>{t('scan.title')}</Text>
+              </Pressable>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => (
@@ -113,4 +122,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   center: { padding: 32, alignItems: 'center' },
   empty: { color: '#94a3b8' },
+  scanBtn: {
+    marginHorizontal: 12,
+    marginBottom: 8,
+    backgroundColor: '#0f172a',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  scanText: { color: '#fff', fontSize: 15, fontWeight: '600' },
 });

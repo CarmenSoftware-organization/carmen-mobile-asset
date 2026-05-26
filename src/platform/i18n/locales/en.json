@@ -111,6 +111,19 @@
     },
     "view": "View"
   },
+  "scan": {
+    "title": "Scan QR Code",
+    "manualEntry": "Or enter a code manually",
+    "manualPlaceholder": "Asset code",
+    "submit": "Find",
+    "torchOn": "Torch on",
+    "torchOff": "Torch off",
+    "permissionMessage": "Camera access is needed to scan asset codes.",
+    "grantPermission": "Grant camera access",
+    "notFound": "No asset found for code: {{code}}",
+    "notFoundInLocation": "Not found Asset in location: {{location}}",
+    "ok": "OK"
+  },
   "more": {
     "signOut": "Sign out"
   },

@@ -37,4 +37,11 @@ describe('i18n', () => {
     expect(t('documents.entry.discard')).toBe('Discard');
     expect(t('documents.entry.serialNo')).toBe('Serial No');
   });
+
+  it('interpolates values and resolves scan keys', () => {
+    expect(t('scan.submit')).toBe('Find');
+    expect(t('scan.notFoundInLocation', { location: 'Warehouse A' })).toBe(
+      'Not found Asset in location: Warehouse A',
+    );
+  });
 });
