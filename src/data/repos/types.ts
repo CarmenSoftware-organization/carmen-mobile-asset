@@ -16,6 +16,8 @@ export interface Asset {
   assetLife: string | null;
   remark: string | null;
   imageUrl: string | null;
+  serialNo: string | null;
+  specification: string | null;
   updatedAt: string;
 }
 
@@ -23,6 +25,17 @@ export interface Location {
   id: string;
   name: string;
   updatedAt: string;
+}
+
+export interface Photo {
+  id: string;
+  entryId: string;
+  localUri: string;
+  remoteUrl: string | null;
+  capturedAt: string;
+  uploadStatus: 'queued' | 'uploading' | 'done' | 'failed';
+  attempts: number;
+  lastError: string | null;
 }
 
 export type MutationKind = 'document.upsert' | 'document.commit' | 'entry.upsert' | 'photo.upload';

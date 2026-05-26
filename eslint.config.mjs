@@ -17,6 +17,7 @@ export default [
       'docs/',
       '.playwright-mcp/',
       '.superpowers/',
+      '.remember/',
     ],
   },
   {

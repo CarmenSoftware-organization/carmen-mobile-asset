@@ -21,6 +21,10 @@ import { createAssetRepo } from '../src/data/repos/assetRepo';
 import { createLocationRepo } from '../src/data/repos/locationRepo';
 import { createMetaRepo } from '../src/data/repos/metaRepo';
 import { useSyncStore } from '../src/data/sync/syncStore';
+import { createCountingDocumentRepo } from '../src/data/repos/countingDocumentRepo';
+import { createCountEntryRepo } from '../src/data/repos/countEntryRepo';
+import { createPhotoRepo } from '../src/data/repos/photoRepo';
+import { createSyncReconciler } from '../src/data/sync/syncReconciler';
 import type { SqlExecutor } from '../src/data/db';
 
 interface BootstrapResult {
@@ -92,7 +96,12 @@ function SyncInfrastructure() {
     const unsubscribeNet = NetInfo.addEventListener((state) => {
       online = state.isConnected === true;
     });
-    const worker = createSyncWorker({ queue, api, isOnline: () => online });
+    const reconcile = createSyncReconciler({
+      countingDocumentRepo: createCountingDocumentRepo(db),
+      countEntryRepo: createCountEntryRepo(db),
+      photoRepo: createPhotoRepo(db),
+    });
+    const worker = createSyncWorker({ queue, api, isOnline: () => online, reconcile });
     const stopWorker = worker.start();
     const catalog = createCatalogSync({
       api,

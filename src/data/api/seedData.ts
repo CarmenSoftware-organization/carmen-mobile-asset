@@ -27,6 +27,8 @@ export const seedAssets: Asset[] = [
     assetLife: '2 ปี 4 เดือน',
     remark: 'In good condition',
     imageUrl: null,
+    serialNo: 'SN-DC-0001',
+    specification: 'Intel i5, 16GB RAM',
     updatedAt: NOW,
   },
   {
@@ -47,6 +49,8 @@ export const seedAssets: Asset[] = [
     assetLife: '2 ปี 4 เดือน',
     remark: null,
     imageUrl: null,
+    serialNo: 'SN-OC-0002',
+    specification: 'Ergonomic, black mesh',
     updatedAt: NOW,
   },
   {
@@ -67,6 +71,8 @@ export const seedAssets: Asset[] = [
     assetLife: '2 ปี 4 เดือน',
     remark: null,
     imageUrl: null,
+    serialNo: 'SN-PJ-0003',
+    specification: '1080p, 3500 lumens',
     updatedAt: NOW,
   },
   {
@@ -87,6 +93,8 @@ export const seedAssets: Asset[] = [
     assetLife: '2 ปี 7 เดือน',
     remark: null,
     imageUrl: null,
+    serialNo: null,
+    specification: '120x90cm magnetic',
     updatedAt: NOW,
   },
   {
@@ -107,6 +115,8 @@ export const seedAssets: Asset[] = [
     assetLife: '2 ปี 2 เดือน',
     remark: null,
     imageUrl: null,
+    serialNo: 'SN-NS-0005',
+    specification: '24-port gigabit',
     updatedAt: NOW,
   },
 ];

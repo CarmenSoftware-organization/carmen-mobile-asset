@@ -36,7 +36,7 @@ export interface CountingDocument {
   runningNumber: string | null;
   locationId: string;
   locationName: string;
-  status: 'draft' | 'committed';
+  status: 'draft' | 'committed' | 'void';
   countDate: string;
   commitDate: string | null;
   description: string;
@@ -51,8 +51,12 @@ export interface CountEntry {
   unknownCode: string | null;
   countQty: number;
   location: string | null;
+  observedSerialNo: string | null;
+  observedSpecification: string | null;
+  observedRemark: string | null;
   comment: string;
   photoIds: string[];
+  transferDate: string | null;
   scannedAt: string;
   updatedAt: string;
 }
@@ -80,7 +84,7 @@ export interface CarmenApi {
 
   // Declared but not implemented in Plan 2 (HTTP throws 'not_implemented';
   // mock may implement them for later-plan tests):
-  listCountingDocuments(opts: { status?: 'draft' | 'committed' }): Promise<CountingDocument[]>;
+  listCountingDocuments(opts: { status?: CountingDocument['status'] }): Promise<CountingDocument[]>;
   getCountingDocument(id: string): Promise<CountingDocument | null>;
   upsertCountingDocument(doc: CountingDocument): Promise<CountingDocument>;
   upsertCountEntries(documentId: string, entries: CountEntry[]): Promise<void>;

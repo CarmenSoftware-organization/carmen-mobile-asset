@@ -1,5 +1,6 @@
 import { MockCarmenApi } from '../mockCarmenApi';
 import { CarmenApiError } from '../errors';
+import type { CountingDocument } from '../carmenApi';
 
 describe('MockCarmenApi', () => {
   it('signIn returns a session for any credentials', async () => {
@@ -45,5 +46,62 @@ describe('MockCarmenApi', () => {
     const api = new MockCarmenApi({ latencyMs: 0 });
     const s = await api.refresh('rt');
     expect(s.token).toMatch(/mock-token/);
+  });
+});
+
+function draft(overrides: Partial<CountingDocument> = {}): CountingDocument {
+  return {
+    id: 'd1',
+    runningNumber: null,
+    locationId: 'loc1',
+    locationName: 'Building A Floor 1',
+    status: 'draft',
+    countDate: '2025-06-15',
+    commitDate: null,
+    description: '',
+    createdBy: 'mock-user',
+    createdAt: '2025-06-15T08:00:00Z',
+    ...overrides,
+  };
+}
+
+describe('MockCarmenApi counting documents', () => {
+  it('assigns CDYYMMNNNN running numbers per month', async () => {
+    const api = new MockCarmenApi({ latencyMs: 0 });
+    const a = await api.upsertCountingDocument(draft({ id: 'd1' }));
+    const b = await api.upsertCountingDocument(draft({ id: 'd2' }));
+    expect(a.runningNumber).toBe('CD25060001');
+    expect(b.runningNumber).toBe('CD25060002');
+  });
+
+  it('keeps an already-assigned running number on re-upsert', async () => {
+    const api = new MockCarmenApi({ latencyMs: 0 });
+    await api.upsertCountingDocument(draft({ id: 'd1' }));
+    const again = await api.upsertCountingDocument(draft({ id: 'd1', description: 'edited' }));
+    expect(again.runningNumber).toBe('CD25060001');
+    expect(again.description).toBe('edited');
+  });
+
+  it('lists and filters by status; commit and void transition status', async () => {
+    const api = new MockCarmenApi({ latencyMs: 0 });
+    await api.upsertCountingDocument(draft({ id: 'd1' }));
+    await api.upsertCountingDocument(draft({ id: 'd2' }));
+    const committed = await api.commitCountingDocument('d1');
+    expect(committed.status).toBe('committed');
+    expect(committed.commitDate).not.toBeNull();
+    await api.upsertCountingDocument(draft({ id: 'd2', status: 'void' }));
+    expect((await api.listCountingDocuments({ status: 'draft' })).map((d) => d.id)).toEqual([]);
+    expect((await api.listCountingDocuments({ status: 'committed' })).map((d) => d.id)).toEqual([
+      'd1',
+    ]);
+    expect((await api.getCountingDocument('d2'))?.status).toBe('void');
+  });
+
+  it('resets the sequence for a new month', async () => {
+    const api = new MockCarmenApi({ latencyMs: 0 });
+    const june = await api.upsertCountingDocument(draft({ id: 'd1', countDate: '2025-06-15' }));
+    const july = await api.upsertCountingDocument(draft({ id: 'd2', countDate: '2025-07-01' }));
+    expect(june.runningNumber).toBe('CD25060001');
+    expect(july.runningNumber).toBe('CD25070001');
   });
 });

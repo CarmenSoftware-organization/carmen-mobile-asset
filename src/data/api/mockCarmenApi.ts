@@ -26,6 +26,10 @@ export class MockCarmenApi implements CarmenApi {
   private latencyMs: number;
   private assets: Asset[] = seedAssets.map((a) => ({ ...a }));
   private locations: Location[] = seedLocations.map((l) => ({ ...l }));
+  private documents = new Map<string, CountingDocument>();
+  // Stored by upsertCountEntries; read by a later slice's listCountEntries.
+  private entries = new Map<string, CountEntry[]>();
+  private monthSeq = new Map<string, number>();
 
   constructor(opts: MockOptions = {}) {
     this.latencyMs = opts.latencyMs ?? 150;
@@ -33,6 +37,16 @@ export class MockCarmenApi implements CarmenApi {
 
   setOnline(online: boolean) {
     this.online = online;
+  }
+
+  private assignRunningNumber(countDate: string): string {
+    const d = new Date(countDate);
+    const yy = String(d.getUTCFullYear()).slice(-2);
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const key = `${yy}${mm}`;
+    const next = (this.monthSeq.get(key) ?? 0) + 1;
+    this.monthSeq.set(key, next);
+    return `CD${yy}${mm}${String(next).padStart(4, '0')}`;
   }
 
   private async network<T>(work: () => T): Promise<T> {
@@ -83,39 +97,62 @@ export class MockCarmenApi implements CarmenApi {
     return this.network(() => ({ version: '0.0.0-mock', minClientVersion: null }));
   }
 
-  async listCountingDocuments(): Promise<CountingDocument[]> {
-    return this.network(() => []);
+  async listCountingDocuments(opts: {
+    status?: 'draft' | 'committed' | 'void';
+  }): Promise<CountingDocument[]> {
+    return this.network(() => {
+      const all = [...this.documents.values()];
+      return (opts.status ? all.filter((d) => d.status === opts.status) : all).map((d) => ({
+        ...d,
+      }));
+    });
   }
 
-  async getCountingDocument(): Promise<CountingDocument | null> {
-    return this.network(() => null);
+  async getCountingDocument(id: string): Promise<CountingDocument | null> {
+    return this.network(() => {
+      const d = this.documents.get(id);
+      return d ? { ...d } : null;
+    });
   }
 
   async upsertCountingDocument(doc: CountingDocument): Promise<CountingDocument> {
-    return this.network(() => ({ ...doc, runningNumber: doc.runningNumber ?? 'CNT-MOCK-001' }));
+    return this.network(() => {
+      const existing = this.documents.get(doc.id);
+      const runningNumber =
+        doc.runningNumber ?? existing?.runningNumber ?? this.assignRunningNumber(doc.countDate);
+      const saved: CountingDocument = { ...doc, runningNumber };
+      this.documents.set(saved.id, saved);
+      return { ...saved };
+    });
   }
 
-  async upsertCountEntries(_documentId: string, _entries: CountEntry[]): Promise<void> {
-    return this.network(() => undefined);
+  async upsertCountEntries(documentId: string, entries: CountEntry[]): Promise<void> {
+    return this.network(() => {
+      this.entries.set(
+        documentId,
+        entries.map((e) => ({ ...e, photoIds: [...e.photoIds] })),
+      );
+    });
   }
 
   async commitCountingDocument(id: string): Promise<CountingDocument> {
-    return this.network(() => ({
-      id,
-      runningNumber: 'CNT-MOCK-001',
-      locationId: 'loc1',
-      locationName: 'Building A Floor 1',
-      status: 'committed',
-      countDate: new Date().toISOString(),
-      commitDate: new Date().toISOString(),
-      description: '',
-      createdBy: 'mock-user',
-      createdAt: new Date().toISOString(),
-    }));
+    return this.network(() => {
+      const existing = this.documents.get(id);
+      if (!existing) {
+        throw new CarmenApiError('not_found', `document ${id} not found`);
+      }
+      const committed: CountingDocument = {
+        ...existing,
+        status: 'committed',
+        commitDate: new Date().toISOString(),
+      };
+      this.documents.set(id, committed);
+      return { ...committed };
+    });
   }
 
-  async uploadPhoto(_file: PhotoUpload): Promise<{ photoId: string; remoteUrl: string }> {
-    return this.network(() => ({ photoId: 'mock-photo-' + Date.now(), remoteUrl: 'mock://photo' }));
+  async uploadPhoto(file: PhotoUpload): Promise<{ photoId: string; remoteUrl: string }> {
+    return this.network(() => ({ photoId: file.id, remoteUrl: `mock://photo/${file.id}` }));
   }
 }
 

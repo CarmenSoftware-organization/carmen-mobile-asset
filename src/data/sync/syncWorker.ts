@@ -1,5 +1,5 @@
 import { CarmenApiError } from '../api/errors';
-import type { CarmenApi } from '../api/carmenApi';
+import type { CarmenApi, CountEntry, CountingDocument, PhotoUpload } from '../api/carmenApi';
 import type { MutationQueue } from './mutationQueue';
 import type { PendingMutation } from '../repos/types';
 import { useSyncStore } from './syncStore';
@@ -12,10 +12,26 @@ const PERMANENT_ERROR_CODES = new Set([
   'not_found',
 ]);
 
+// Hooks invoked after a mutation syncs, to write server-assigned values back
+// to local rows. A hook that throws is treated by the worker as a retryable
+// mutation failure (see drainOnce): both the mutations and the repo markSynced
+// writes are idempotent, so re-running on retry is safe.
+export interface SyncReconciler {
+  onDocumentUpserted(doc: CountingDocument): Promise<void>;
+  onDocumentCommitted(doc: CountingDocument): Promise<void>;
+  /** `entries` is the local payload — upsertCountEntries returns void, so there is no server response. */
+  onEntriesUpserted(documentId: string, entries: CountEntry[]): Promise<void>;
+  onPhotoUploaded(
+    localPhotoId: string,
+    result: { photoId: string; remoteUrl: string },
+  ): Promise<void>;
+}
+
 export interface SyncWorkerDeps {
   queue: MutationQueue;
   api: CarmenApi;
   isOnline: () => boolean;
+  reconcile?: SyncReconciler;
 }
 
 export interface SyncWorker {
@@ -23,24 +39,35 @@ export interface SyncWorker {
   start(): () => void;
 }
 
-async function performMutation(api: CarmenApi, m: PendingMutation): Promise<void> {
+async function performMutation(
+  api: CarmenApi,
+  m: PendingMutation,
+  reconcile?: SyncReconciler,
+): Promise<void> {
   switch (m.kind) {
-    case 'document.upsert':
-      await api.upsertCountingDocument(m.payload as never);
+    case 'document.upsert': {
+      const result = await api.upsertCountingDocument(m.payload as CountingDocument);
+      await reconcile?.onDocumentUpserted(result);
       return;
+    }
     case 'document.commit': {
       const { id } = m.payload as { id: string };
-      await api.commitCountingDocument(id);
+      const result = await api.commitCountingDocument(id);
+      await reconcile?.onDocumentCommitted(result);
       return;
     }
     case 'entry.upsert': {
-      const { documentId, entries } = m.payload as { documentId: string; entries: never };
+      const { documentId, entries } = m.payload as { documentId: string; entries: CountEntry[] };
       await api.upsertCountEntries(documentId, entries);
+      await reconcile?.onEntriesUpserted(documentId, entries);
       return;
     }
-    case 'photo.upload':
-      await api.uploadPhoto(m.payload as never);
+    case 'photo.upload': {
+      const file = m.payload as PhotoUpload;
+      const result = await api.uploadPhoto(file);
+      await reconcile?.onPhotoUploaded(file.id, result);
       return;
+    }
   }
 }
 
@@ -57,7 +84,7 @@ export function createSyncWorker(deps: SyncWorkerDeps): SyncWorker {
     useSyncStore.getState().setStatus('syncing');
     await deps.queue.markInFlight(m.id);
     try {
-      await performMutation(deps.api, m);
+      await performMutation(deps.api, m, deps.reconcile);
       await deps.queue.markDone(m.id);
       useSyncStore.getState().recordSuccess();
     } catch (err) {
