@@ -44,6 +44,8 @@ export interface CountEntryRepo {
   findById(id: string): Promise<CountEntry | null>;
   findByDocumentAndAsset(documentId: string, assetId: string): Promise<CountEntry | null>;
   markSynced(ids: string[]): Promise<void>;
+  /** Map of documentId -> number of entries with countQty > 0. Documents with none are omitted. */
+  countedTotalsByDocument(documentIds: string[]): Promise<Record<string, number>>;
 }
 
 export function createCountEntryRepo(db: SqlExecutor): CountEntryRepo {
@@ -106,6 +108,19 @@ export function createCountEntryRepo(db: SqlExecutor): CountEntryRepo {
         new Date().toISOString(),
         ...ids,
       ]);
+    },
+    async countedTotalsByDocument(documentIds) {
+      if (documentIds.length === 0) return {};
+      const placeholders = documentIds.map(() => '?').join(',');
+      const rows = await db.getAllAsync<{ documentId: string; n: number }>(
+        `SELECT documentId, COUNT(*) AS n FROM count_entry
+         WHERE documentId IN (${placeholders}) AND countQty > 0
+         GROUP BY documentId`,
+        documentIds,
+      );
+      const out: Record<string, number> = {};
+      for (const r of rows) out[r.documentId] = r.n;
+      return out;
     },
   };
 }

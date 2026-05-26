@@ -12,4 +12,11 @@ describe('Home tab', () => {
     render(<HomeScreen />);
     expect(screen.getByText('Asset Checker')).toBeOnTheScreen();
   });
+
+  it('renders the three counting actions', () => {
+    render(<HomeScreen />);
+    expect(screen.getByText('Scan QR Code')).toBeOnTheScreen();
+    expect(screen.getByText('Create New Counting Document')).toBeOnTheScreen();
+    expect(screen.getByText('View All Counting Documents')).toBeOnTheScreen();
+  });
 });

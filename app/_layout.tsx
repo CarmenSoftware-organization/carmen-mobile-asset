@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import { AuthBundleProvider, useAuthBundle } from '../src/features/auth/AuthBund
 import { CarmenApiProvider } from '../src/data/api/carmenApiContext';
 import { useAuthStore } from '../src/features/auth/authStore';
 import { createMutationQueue } from '../src/data/sync/mutationQueue';
+import { MutationQueueProvider, useMutationQueue } from '../src/data/sync/mutationQueueContext';
 import { createPendingMutationRepo } from '../src/data/repos/pendingMutationRepo';
 import { createSyncWorker } from '../src/data/sync/syncWorker';
 import { createCatalogSync } from '../src/data/sync/catalogSync';
@@ -65,16 +66,26 @@ export default function RootLayout() {
     );
   }
 
+  return <AppProviders bootstrap={bootstrap} />;
+}
+
+function AppProviders({ bootstrap }: { bootstrap: BootstrapResult }) {
+  const queue = useMemo(
+    () => createMutationQueue(createPendingMutationRepo(bootstrap.db)),
+    [bootstrap.db],
+  );
   return (
     <SafeAreaProvider>
       <StatusBar style="auto" />
       <QueryClientProvider client={queryClient}>
         <DbProvider value={bootstrap.db}>
           <CarmenApiProvider value={bootstrap.auth.api}>
-            <AuthBundleProvider value={bootstrap.auth}>
-              <SyncInfrastructure />
-              <RouteGate />
-            </AuthBundleProvider>
+            <MutationQueueProvider value={queue}>
+              <AuthBundleProvider value={bootstrap.auth}>
+                <SyncInfrastructure />
+                <RouteGate />
+              </AuthBundleProvider>
+            </MutationQueueProvider>
           </CarmenApiProvider>
         </DbProvider>
       </QueryClientProvider>
@@ -86,12 +97,11 @@ function SyncInfrastructure() {
   const session = useAuthStore((s) => s.session);
   const { api } = useAuthBundle();
   const db = useDb();
+  const queue = useMutationQueue();
 
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
-    const pendingRepo = createPendingMutationRepo(db);
-    const queue = createMutationQueue(pendingRepo);
     let online = true;
     const unsubscribeNet = NetInfo.addEventListener((state) => {
       online = state.isConnected === true;
@@ -123,7 +133,7 @@ function SyncInfrastructure() {
       unsubscribeNet();
       stopWorker();
     };
-  }, [session, api, db]);
+  }, [session, api, db, queue]);
 
   return null;
 }
@@ -148,6 +158,7 @@ function RouteGate() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="auth/sign-in" options={{ presentation: 'modal' }} />
       <Stack.Screen name="sync" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="documents/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="assets/index" />
       <Stack.Screen name="assets/[id]" />
       <Stack.Screen name="+not-found" />

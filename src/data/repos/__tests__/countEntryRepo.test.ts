@@ -58,4 +58,22 @@ describe('countEntryRepo', () => {
     );
     expect(raw?.syncedAt).not.toBeNull();
   });
+
+  it('countedTotalsByDocument counts only entries with countQty > 0, grouped by document', async () => {
+    const repo = createCountEntryRepo(db);
+    // d1: two counted (a1, a2) + one zero (a3) => 2
+    await repo.upsert({ ...entry, id: 'e1', documentId: 'd1', assetId: 'a1', countQty: 1 });
+    await repo.upsert({ ...entry, id: 'e2', documentId: 'd1', assetId: 'a2', countQty: 5 });
+    await repo.upsert({ ...entry, id: 'e3', documentId: 'd1', assetId: 'a3', countQty: 0 });
+    // d2: one counted => 1
+    await repo.upsert({ ...entry, id: 'e4', documentId: 'd2', assetId: 'a1', countQty: 2 });
+
+    const totals = await repo.countedTotalsByDocument(['d1', 'd2', 'd3']);
+    expect(totals).toEqual({ d1: 2, d2: 1 }); // d3 absent (no counted entries)
+  });
+
+  it('countedTotalsByDocument returns {} for an empty id list', async () => {
+    const repo = createCountEntryRepo(db);
+    expect(await repo.countedTotalsByDocument([])).toEqual({});
+  });
 });
