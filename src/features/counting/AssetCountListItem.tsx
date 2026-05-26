@@ -33,7 +33,11 @@ export function AssetCountListItem({ row, onChangeQty, disabled }: Props) {
           </Text>
         ) : null}
       </View>
-      <QtyStepper value={countedQty} disabled={disabled} onChange={(n) => onChangeQty(asset.id, n)} />
+      <QtyStepper
+        value={countedQty}
+        disabled={disabled}
+        onChange={(n) => onChangeQty(asset.id, n)}
+      />
     </View>
   );
 }

@@ -100,7 +100,12 @@ const styles = StyleSheet.create({
   },
   sortRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   label: { fontSize: 12, color: '#94a3b8' },
-  sortBtn: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 999, backgroundColor: '#e5e7eb' },
+  sortBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: '#e5e7eb',
+  },
   sortBtnActive: { backgroundColor: '#2563eb' },
   sortText: { fontSize: 12, color: '#475569', fontWeight: '600' },
   sortTextActive: { color: '#fff' },

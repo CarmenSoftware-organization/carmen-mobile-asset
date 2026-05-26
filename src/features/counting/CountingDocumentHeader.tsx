@@ -2,11 +2,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useT } from '../../platform/i18n';
 import type { CountingDocument } from '../../data/api/carmenApi';
 
-const STATUS_STYLE: Record<CountingDocument['status'], { backgroundColor: string; color: string }> = {
-  draft: { backgroundColor: '#e5e7eb', color: '#475569' },
-  committed: { backgroundColor: '#dcfce7', color: '#166534' },
-  void: { backgroundColor: '#fee2e2', color: '#991b1b' },
-};
+const STATUS_STYLE: Record<CountingDocument['status'], { backgroundColor: string; color: string }> =
+  {
+    draft: { backgroundColor: '#e5e7eb', color: '#475569' },
+    committed: { backgroundColor: '#dcfce7', color: '#166534' },
+    void: { backgroundColor: '#fee2e2', color: '#991b1b' },
+  };
 
 export function CountingDocumentHeader({ document }: { document: CountingDocument }) {
   const t = useT();
