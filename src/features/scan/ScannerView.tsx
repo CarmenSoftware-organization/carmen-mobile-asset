@@ -111,7 +111,12 @@ const styles = StyleSheet.create({
   torchText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   permission: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
   permissionText: { color: '#fff', fontSize: 15, textAlign: 'center' },
-  grantBtn: { backgroundColor: '#2563eb', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12 },
+  grantBtn: {
+    backgroundColor: '#2563eb',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
   grantText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   manual: { backgroundColor: '#fff', padding: 12, gap: 6 },
   manualLabel: { fontSize: 12, color: '#94a3b8' },
