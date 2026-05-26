@@ -139,7 +139,12 @@ export function CountEntryForm({
       </View>
 
       {showDiscard ? (
-        <Modal transparent animationType="fade" visible onRequestClose={() => setShowDiscard(false)}>
+        <Modal
+          transparent
+          animationType="fade"
+          visible
+          onRequestClose={() => setShowDiscard(false)}
+        >
           <View style={styles.backdrop}>
             <View style={styles.dialog}>
               <Text style={styles.dialogTitle}>{t('documents.entry.discardTitle')}</Text>

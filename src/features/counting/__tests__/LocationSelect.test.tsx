@@ -25,7 +25,14 @@ describe('LocationSelect', () => {
 
   it('does not open when disabled', () => {
     const onChange = jest.fn();
-    render(<LocationSelect value="Building A Floor 1" options={locations} onChange={onChange} disabled />);
+    render(
+      <LocationSelect
+        value="Building A Floor 1"
+        options={locations}
+        onChange={onChange}
+        disabled
+      />,
+    );
     fireEvent.press(screen.getByLabelText('Location'));
     expect(screen.queryByText('Warehouse A')).toBeNull();
   });
