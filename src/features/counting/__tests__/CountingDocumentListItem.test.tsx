@@ -36,7 +36,11 @@ describe('CountingDocumentListItem', () => {
   });
 
   it('shows the running number and no void button for a committed document', () => {
-    const committed: CountingDocument = { ...base, status: 'committed', runningNumber: 'CD26050001' };
+    const committed: CountingDocument = {
+      ...base,
+      status: 'committed',
+      runningNumber: 'CD26050001',
+    };
     render(<CountingDocumentListItem document={committed} countedTotal={0} />);
     expect(screen.getByText('CD26050001')).toBeOnTheScreen();
     expect(screen.getByText('Committed')).toBeOnTheScreen();

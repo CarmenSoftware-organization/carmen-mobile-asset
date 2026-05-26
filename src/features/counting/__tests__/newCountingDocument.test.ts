@@ -1,7 +1,11 @@
 import { newCountingDocument } from '../newCountingDocument';
 import type { Location } from '../../../data/repos/types';
 
-const location: Location = { id: 'loc1', name: 'Building A Floor 1', updatedAt: '2026-05-22T10:00:00Z' };
+const location: Location = {
+  id: 'loc1',
+  name: 'Building A Floor 1',
+  updatedAt: '2026-05-22T10:00:00Z',
+};
 
 describe('newCountingDocument', () => {
   it('builds a draft document scoped to the location', () => {

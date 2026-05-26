@@ -54,7 +54,12 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 12 },
   cancelBtn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
   cancelText: { fontSize: 15, color: '#475569', fontWeight: '600' },
-  confirmBtn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#2563eb' },
+  confirmBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#2563eb',
+  },
   destructiveBtn: { backgroundColor: '#dc2626' },
   confirmText: { fontSize: 15, color: '#fff', fontWeight: '600' },
 });

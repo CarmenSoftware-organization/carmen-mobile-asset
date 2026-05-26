@@ -36,7 +36,12 @@ export function StatusFilterChips({ value, onChange }: Props) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingVertical: 10 },
-  chip: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 999, backgroundColor: '#e5e7eb' },
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: '#e5e7eb',
+  },
   chipActive: { backgroundColor: '#2563eb' },
   chipText: { fontSize: 13, color: '#475569', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
