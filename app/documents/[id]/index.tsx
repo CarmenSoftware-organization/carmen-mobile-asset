@@ -15,6 +15,8 @@ import {
   type CountFilter,
   type AssetSort,
 } from '../../../src/features/counting/filterSortAssetCounts';
+import { ConfirmDialog } from '../../../src/ui/ConfirmDialog';
+import { useCommitCountingDocument } from '../../../src/features/counting/useCommitCountingDocument';
 
 export default function CountingDocumentDetailScreen() {
   const t = useT();
@@ -28,6 +30,8 @@ export default function CountingDocumentDetailScreen() {
     document?.locationName ?? '',
   );
   const setQty = useSetCountedQty(documentId);
+  const commit = useCommitCountingDocument(documentId);
+  const [showCommit, setShowCommit] = useState(false);
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<CountFilter>('all');
@@ -96,6 +100,15 @@ export default function CountingDocumentDetailScreen() {
                 <Text style={styles.scanText}>{t('scan.title')}</Text>
               </Pressable>
             ) : null}
+            {!locked ? (
+              <Pressable
+                accessibilityRole="button"
+                style={styles.commitBtn}
+                onPress={() => setShowCommit(true)}
+              >
+                <Text style={styles.commitText}>{t('documents.commit.action')}</Text>
+              </Pressable>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => (
@@ -114,6 +127,18 @@ export default function CountingDocumentDetailScreen() {
           </View>
         }
       />
+      <ConfirmDialog
+        visible={showCommit}
+        title={t('documents.commit.title')}
+        message={t('documents.commit.message')}
+        confirmLabel={t('documents.commit.confirm')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={() => {
+          if (document) commit.mutate(document);
+          setShowCommit(false);
+        }}
+        onCancel={() => setShowCommit(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -131,4 +156,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scanText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  commitBtn: {
+    marginHorizontal: 12,
+    marginBottom: 8,
+    backgroundColor: '#16a34a',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  commitText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });
