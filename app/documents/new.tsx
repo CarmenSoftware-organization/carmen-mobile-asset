@@ -28,7 +28,9 @@ export default function NewCountingDocumentScreen() {
               accessibilityRole="button"
               style={styles.row}
               onPress={() => {
-                create.mutate(item, { onSuccess: () => router.replace('/documents') });
+                create.mutate(item, {
+                  onSuccess: (doc) => router.replace(`/documents/${doc.id}`),
+                });
               }}
             >
               <Text style={styles.rowText}>{item.name}</Text>

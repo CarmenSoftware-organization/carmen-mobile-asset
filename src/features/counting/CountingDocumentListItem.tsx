@@ -7,6 +7,8 @@ interface Props {
   countedTotal: number;
   /** When provided (drafts only), renders a void/trash action. */
   onVoid?: (doc: CountingDocument) => void;
+  /** When provided, renders a view (eye) action for any status. */
+  onView?: (doc: CountingDocument) => void;
 }
 
 const STATUS_STYLE: Record<CountingDocument['status'], object> = {
@@ -15,7 +17,7 @@ const STATUS_STYLE: Record<CountingDocument['status'], object> = {
   void: { backgroundColor: '#fee2e2', color: '#991b1b' },
 };
 
-export function CountingDocumentListItem({ document, countedTotal, onVoid }: Props) {
+export function CountingDocumentListItem({ document, countedTotal, onVoid, onView }: Props) {
   const t = useT();
   const status = document.status;
   const badge = STATUS_STYLE[status] as { backgroundColor: string; color: string };
@@ -39,16 +41,28 @@ export function CountingDocumentListItem({ document, countedTotal, onVoid }: Pro
           </View>
         </View>
       </View>
-      {onVoid && status === 'draft' ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('documents.void.action')}
-          style={styles.voidBtn}
-          onPress={() => onVoid(document)}
-        >
-          <Text style={styles.voidIcon}>🗑</Text>
-        </Pressable>
-      ) : null}
+      <View style={styles.actions}>
+        {onView ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('documents.view')}
+            style={styles.actionBtn}
+            onPress={() => onView(document)}
+          >
+            <Text style={styles.actionIcon}>👁</Text>
+          </Pressable>
+        ) : null}
+        {onVoid && status === 'draft' ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('documents.void.action')}
+            style={styles.actionBtn}
+            onPress={() => onVoid(document)}
+          >
+            <Text style={styles.actionIcon}>🗑</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -72,6 +86,7 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', gap: 12, marginTop: 2, alignItems: 'center' },
   countedWrap: { flexDirection: 'row', gap: 4 },
   meta: { fontSize: 12, color: '#64748b' },
-  voidBtn: { paddingHorizontal: 8, paddingVertical: 8, marginLeft: 8 },
-  voidIcon: { fontSize: 18 },
+  actions: { flexDirection: 'row', alignItems: 'center', marginLeft: 8 },
+  actionBtn: { paddingHorizontal: 8, paddingVertical: 8 },
+  actionIcon: { fontSize: 18 },
 });

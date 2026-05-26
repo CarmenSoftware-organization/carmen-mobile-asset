@@ -46,4 +46,12 @@ describe('CountingDocumentListItem', () => {
     expect(screen.getByText('Committed')).toBeOnTheScreen();
     expect(screen.queryByLabelText('Void')).toBeNull();
   });
+
+  it('renders a view button that fires onView for any status', () => {
+    const onView = jest.fn();
+    const committed: CountingDocument = { ...base, status: 'committed', runningNumber: 'CD26050001' };
+    render(<CountingDocumentListItem document={committed} countedTotal={0} onView={onView} />);
+    fireEvent.press(screen.getByLabelText('View'));
+    expect(onView).toHaveBeenCalledWith(committed);
+  });
 });

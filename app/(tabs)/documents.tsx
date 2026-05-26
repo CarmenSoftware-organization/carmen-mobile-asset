@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useT } from '../../src/platform/i18n';
 import { Header } from '../../src/ui/Header';
 import { StatusFilterChips } from '../../src/features/counting/StatusFilterChips';
@@ -12,6 +13,7 @@ import type { CountingDocument } from '../../src/data/api/carmenApi';
 
 export default function DocumentsScreen() {
   const t = useT();
+  const router = useRouter();
   const [status, setStatus] = useState<CountingDocument['status']>('draft');
   const { data, isLoading } = useCountingDocuments(status);
   const voidDoc = useVoidCountingDocument();
@@ -29,6 +31,7 @@ export default function DocumentsScreen() {
             document={item.document}
             countedTotal={item.countedTotal}
             onVoid={item.document.status === 'draft' ? setPendingVoid : undefined}
+            onView={(doc) => router.push(`/documents/${doc.id}`)}
           />
         )}
         ListEmptyComponent={
