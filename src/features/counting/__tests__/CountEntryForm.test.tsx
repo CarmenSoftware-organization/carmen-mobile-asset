@@ -46,6 +46,8 @@ function setup(over: Partial<React.ComponentProps<typeof CountEntryForm>> = {}) 
     initial,
     locations,
     locked: false,
+    existingPhotoUris: [] as string[],
+    onCapturePhoto: jest.fn(async () => ({ uri: 'file://new.jpg', mimeType: 'image/jpeg' })),
     onSave: jest.fn(),
     onBack: jest.fn(),
     ...over,
@@ -75,6 +77,7 @@ describe('CountEntryForm', () => {
     fireEvent.press(screen.getByText('Save Asset Count'));
     expect(props.onSave).toHaveBeenCalledWith(
       expect.objectContaining({ comment: 'all good', countQty: 2 }),
+      [],
     );
   });
 
@@ -100,5 +103,22 @@ describe('CountEntryForm', () => {
     expect(screen.queryByText('Save Asset Count')).toBeNull();
     fireEvent.press(screen.getByLabelText('increment'));
     expect(props.onSave).not.toHaveBeenCalled();
+  });
+
+  it('captures a photo, shows a thumbnail, and includes it on save', async () => {
+    const props = setup();
+    fireEvent.press(screen.getByLabelText('Take Photo'));
+    await screen.findByLabelText('photo');
+    expect(screen.getAllByLabelText('photo')).toHaveLength(1);
+    fireEvent.press(screen.getByText('Save Asset Count'));
+    expect(props.onSave).toHaveBeenCalledWith(
+      expect.any(Object),
+      [expect.objectContaining({ uri: 'file://new.jpg', mimeType: 'image/jpeg' })],
+    );
+  });
+
+  it('shows existing photo thumbnails', () => {
+    setup({ existingPhotoUris: ['file://a.jpg', 'file://b.jpg'] });
+    expect(screen.getAllByLabelText('photo')).toHaveLength(2);
   });
 });
