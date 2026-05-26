@@ -95,6 +95,20 @@
       "search": "Search assets…",
       "empty": "No assets in this location."
     },
+    "entry": {
+      "save": "Save Asset Count",
+      "back": "Back",
+      "location": "Location",
+      "selectLocation": "Select location",
+      "transferDate": "Transfer Date",
+      "serialNo": "Serial No",
+      "specification": "Specification",
+      "remark": "Remark",
+      "comment": "Comment",
+      "discardTitle": "Discard changes?",
+      "discardMessage": "Your edits to this count will be lost.",
+      "discard": "Discard"
+    },
     "view": "View"
   },
   "more": {

@@ -31,4 +31,10 @@ describe('i18n', () => {
     expect(t('documents.sort.name')).toBe('Name');
     expect(t('documents.view')).toBe('View');
   });
+
+  it('resolves the asset-information entry keys', () => {
+    expect(t('documents.entry.save')).toBe('Save Asset Count');
+    expect(t('documents.entry.discard')).toBe('Discard');
+    expect(t('documents.entry.serialNo')).toBe('Serial No');
+  });
 });
