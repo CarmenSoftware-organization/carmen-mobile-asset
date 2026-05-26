@@ -52,8 +52,8 @@ Most modules are **factory functions** (`createAssetRepo`, `createSyncWorker`, `
 
 ### Boot sequence (`app/_layout.tsx`)
 
-`RootLayout` runs `initI18n() → openDatabase() → createAuth()` once, shows a spinner until ready, then nests providers: `QueryClient → Db → CarmenApi → AuthBundle`. Inside it mounts:
-- **`SyncInfrastructure`** — when a session exists, wires `mutationQueue + syncWorker` (driven by netinfo + queue events) and kicks off `catalogSync`.
+`RootLayout` runs `initI18n() → openDatabase() → createAuth()` once, shows a spinner until ready, then nests providers: `QueryClient → Db → CarmenApi → MutationQueue → AuthBundle`. The `MutationQueue` is created once from the db and shared via `MutationQueueProvider` so UI mutation hooks enqueue through the same instance the sync worker drains. Inside it mounts:
+- **`SyncInfrastructure`** — when a session exists, consumes the shared `mutationQueue` (via `useMutationQueue()`), wires the `syncWorker` to it (driven by netinfo + queue events), and kicks off `catalogSync`.
 - **`RouteGate`** — a `Stack` whose effect redirects on auth status (`signedOut` → `/auth/sign-in`, `signedIn` while in the auth group → `/`). Modal routes (`auth/sign-in`, `sync`) use `presentation: 'modal'`.
 
 ### Per-customer config (build-time)
