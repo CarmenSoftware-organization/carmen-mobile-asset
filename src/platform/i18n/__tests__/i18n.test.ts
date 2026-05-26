@@ -25,4 +25,10 @@ describe('i18n', () => {
     expect(t('documents.status.draft')).toBe('Draft');
     expect(t('documents.void.confirm')).toBe('Void');
   });
+
+  it('resolves the detail-list keys', () => {
+    expect(t('documents.countFilter.uncounted')).toBe('Uncounted');
+    expect(t('documents.sort.name')).toBe('Name');
+    expect(t('documents.view')).toBe('View');
+  });
 });
