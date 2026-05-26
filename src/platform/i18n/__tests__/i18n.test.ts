@@ -19,4 +19,10 @@ describe('i18n', () => {
     await setLocale('en');
     expect(t('does.not.exist')).toBe('does.not.exist');
   });
+
+  it('resolves the new documents keys', () => {
+    expect(t('documents.title')).toBe('Counting Documents');
+    expect(t('documents.status.draft')).toBe('Draft');
+    expect(t('documents.void.confirm')).toBe('Void');
+  });
 });

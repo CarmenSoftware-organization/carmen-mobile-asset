@@ -51,6 +51,29 @@
       "remark": "Remark"
     }
   },
+  "documents": {
+    "title": "Counting Documents",
+    "empty": "No counting documents yet.",
+    "loading": "Loading…",
+    "pending": "Pending",
+    "counted": "Counted",
+    "status": {
+      "draft": "Draft",
+      "committed": "Committed",
+      "void": "Void"
+    },
+    "void": {
+      "action": "Void",
+      "title": "Void this document?",
+      "message": "This counting document will be voided. This can't be undone.",
+      "confirm": "Void"
+    },
+    "new": {
+      "title": "New Counting Document",
+      "subtitle": "Select a location to count",
+      "empty": "No locations available."
+    }
+  },
   "more": {
     "signOut": "Sign out"
   },
