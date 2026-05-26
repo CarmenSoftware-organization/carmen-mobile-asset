@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useT } from '../../platform/i18n';
 import { QtyStepper } from './QtyStepper';
 import type { AssetCountRow } from './filterSortAssetCounts';
@@ -7,9 +7,11 @@ interface Props {
   row: AssetCountRow;
   onChangeQty: (assetId: string, qty: number) => void;
   disabled?: boolean;
+  /** When provided, renders a view button that opens Asset Information for this asset. */
+  onView?: (assetId: string) => void;
 }
 
-export function AssetCountListItem({ row, onChangeQty, disabled }: Props) {
+export function AssetCountListItem({ row, onChangeQty, disabled, onView }: Props) {
   const t = useT();
   const { asset, countedQty } = row;
   return (
@@ -33,11 +35,19 @@ export function AssetCountListItem({ row, onChangeQty, disabled }: Props) {
           </Text>
         ) : null}
       </View>
-      <QtyStepper
-        value={countedQty}
-        disabled={disabled}
-        onChange={(n) => onChangeQty(asset.id, n)}
-      />
+      <View style={styles.trailing}>
+        {onView ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('documents.view')}
+            style={styles.viewBtn}
+            onPress={() => onView(asset.id)}
+          >
+            <Text style={styles.viewIcon}>›</Text>
+          </Pressable>
+        ) : null}
+        <QtyStepper value={countedQty} disabled={disabled} onChange={(n) => onChangeQty(asset.id, n)} />
+      </View>
     </View>
   );
 }
@@ -59,4 +69,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 15, fontWeight: '600', color: '#0f172a' },
   meta: { flexDirection: 'row', gap: 8 },
   metaText: { fontSize: 12, color: '#64748b' },
+  trailing: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  viewBtn: { paddingHorizontal: 6, paddingVertical: 6 },
+  viewIcon: { fontSize: 22, color: '#2563eb' },
 });

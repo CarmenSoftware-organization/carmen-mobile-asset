@@ -58,4 +58,11 @@ describe('AssetCountListItem', () => {
     fireEvent.press(screen.getByLabelText('increment'));
     expect(onChangeQty).not.toHaveBeenCalled();
   });
+
+  it('fires onView with the asset id when the view button is pressed', () => {
+    const onView = jest.fn();
+    render(<AssetCountListItem row={row} onChangeQty={() => {}} onView={onView} />);
+    fireEvent.press(screen.getByLabelText('View'));
+    expect(onView).toHaveBeenCalledWith('a1');
+  });
 });
