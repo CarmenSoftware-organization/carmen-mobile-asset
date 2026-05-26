@@ -46,7 +46,7 @@ async function performMutation(
 ): Promise<void> {
   switch (m.kind) {
     case 'document.upsert': {
-      const result = await api.upsertCountingDocument(m.payload as never);
+      const result = await api.upsertCountingDocument(m.payload as CountingDocument);
       await reconcile?.onDocumentUpserted(result);
       return;
     }
