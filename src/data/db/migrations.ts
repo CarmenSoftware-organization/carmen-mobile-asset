@@ -88,6 +88,8 @@ CREATE TABLE count_entry (
   syncedAt TEXT
 );
 CREATE INDEX idx_count_entry_documentId ON count_entry(documentId);
+-- One entry per known asset per document (accumulation updates that row).
+-- SQLite treats NULL assetIds as distinct, so unknown-code surprise scans can coexist.
 CREATE UNIQUE INDEX idx_count_entry_doc_asset ON count_entry(documentId, assetId);
 
 CREATE TABLE photo (

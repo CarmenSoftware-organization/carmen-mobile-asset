@@ -63,7 +63,9 @@ describe('runMigrations', () => {
   });
 });
 
-describe('v1 migration schema', () => {
+// makeMigratedTestDb() runs ALL migrations, so these assert the v1 tables/indexes
+// survive later migrations. arrayContaining tolerates tables added by newer versions.
+describe('schema after all migrations — v1 objects retained', () => {
   it('creates assets, locations, pending_mutations, _meta tables', async () => {
     const ex = await makeMigratedTestDb();
     const rows = await ex.getAllAsync<{ name: string }>(
