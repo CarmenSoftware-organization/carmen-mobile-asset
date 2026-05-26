@@ -21,6 +21,8 @@ const sample: Asset = {
   assetLife: '2 ปี 4 เดือน',
   remark: null,
   imageUrl: null,
+  serialNo: null,
+  specification: null,
   updatedAt: '2026-05-22T10:00:00Z',
 };
 

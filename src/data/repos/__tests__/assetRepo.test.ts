@@ -20,6 +20,8 @@ const sample: Asset = {
   assetLife: '2 ปี 4 เดือน',
   remark: 'In good condition',
   imageUrl: null,
+  serialNo: 'SN-DC-0001',
+  specification: 'Intel i5, 16GB RAM',
   updatedAt: '2026-05-22T10:00:00Z',
 };
 
@@ -75,5 +77,12 @@ describe('assetRepo', () => {
     await repo.upsertMany([sample, { ...sample, id: 'a2', code: 'AST002' }]);
     await repo.deleteByIds(['a1']);
     expect((await repo.list()).map((r) => r.id)).toEqual(['a2']);
+  });
+
+  it('round-trips serialNo and specification', async () => {
+    const repo = createAssetRepo(db);
+    await repo.upsertMany([sample]);
+    const found = await repo.findById('a1');
+    expect(found).toMatchObject({ serialNo: 'SN-DC-0001', specification: 'Intel i5, 16GB RAM' });
   });
 });

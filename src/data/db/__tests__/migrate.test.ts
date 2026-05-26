@@ -69,12 +69,9 @@ describe('v1 migration schema', () => {
     const rows = await ex.getAllAsync<{ name: string }>(
       "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
     );
-    expect(rows.map((r) => r.name).sort()).toEqual([
-      '_meta',
-      'assets',
-      'locations',
-      'pending_mutations',
-    ]);
+    expect(rows.map((r) => r.name)).toEqual(
+      expect.arrayContaining(['_meta', 'assets', 'locations', 'pending_mutations']),
+    );
     ex.close();
   });
 
@@ -85,5 +82,20 @@ describe('v1 migration schema', () => {
     );
     expect(rows.length).toBe(1);
     ex.close();
+  });
+});
+
+describe('v2 migration schema', () => {
+  it('migration v2 creates counting tables and asset columns', async () => {
+    const db = await makeMigratedTestDb();
+    const cols = await db.getAllAsync<{ name: string }>("PRAGMA table_info('assets')");
+    expect(cols.map((c) => c.name)).toEqual(expect.arrayContaining(['serialNo', 'specification']));
+    const tables = await db.getAllAsync<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE type='table'",
+    );
+    expect(tables.map((t) => t.name)).toEqual(
+      expect.arrayContaining(['counting_document', 'count_entry', 'photo']),
+    );
+    db.close();
   });
 });

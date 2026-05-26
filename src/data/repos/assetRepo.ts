@@ -48,8 +48,9 @@ export function createAssetRepo(db: SqlExecutor): AssetRepo {
           `INSERT INTO assets (
              id, code, name, category, department, locationId, locationName,
              quantity, remainQty, price, currency, totalAmount,
-             inputDate, acquireDate, assetLife, remark, imageUrl, updatedAt, syncedAt
-           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+             inputDate, acquireDate, assetLife, remark, imageUrl,
+             serialNo, specification, updatedAt, syncedAt
+           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
            ON CONFLICT(id) DO UPDATE SET
              code=excluded.code, name=excluded.name, category=excluded.category,
              department=excluded.department, locationId=excluded.locationId,
@@ -58,6 +59,7 @@ export function createAssetRepo(db: SqlExecutor): AssetRepo {
              totalAmount=excluded.totalAmount, inputDate=excluded.inputDate,
              acquireDate=excluded.acquireDate, assetLife=excluded.assetLife,
              remark=excluded.remark, imageUrl=excluded.imageUrl,
+             serialNo=excluded.serialNo, specification=excluded.specification,
              updatedAt=excluded.updatedAt, syncedAt=excluded.syncedAt`,
           [
             a.id,
@@ -77,6 +79,8 @@ export function createAssetRepo(db: SqlExecutor): AssetRepo {
             a.assetLife,
             a.remark,
             a.imageUrl,
+            a.serialNo,
+            a.specification,
             a.updatedAt,
             now,
           ],

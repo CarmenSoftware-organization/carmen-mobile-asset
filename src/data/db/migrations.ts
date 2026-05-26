@@ -50,11 +50,70 @@ CREATE TABLE _meta (
 );
 `;
 
+const SCHEMA_V2 = `
+ALTER TABLE assets ADD COLUMN serialNo TEXT;
+ALTER TABLE assets ADD COLUMN specification TEXT;
+
+CREATE TABLE counting_document (
+  id TEXT PRIMARY KEY,
+  runningNumber TEXT,
+  locationId TEXT NOT NULL,
+  locationName TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft',
+  countDate TEXT NOT NULL,
+  commitDate TEXT,
+  description TEXT NOT NULL DEFAULT '',
+  createdBy TEXT NOT NULL,
+  createdAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  syncedAt TEXT
+);
+CREATE INDEX idx_counting_document_status ON counting_document(status, countDate);
+
+CREATE TABLE count_entry (
+  id TEXT PRIMARY KEY,
+  documentId TEXT NOT NULL,
+  assetId TEXT,
+  unknownCode TEXT,
+  countQty INTEGER NOT NULL DEFAULT 0,
+  location TEXT,
+  observedSerialNo TEXT,
+  observedSpecification TEXT,
+  observedRemark TEXT,
+  comment TEXT NOT NULL DEFAULT '',
+  photoIds TEXT NOT NULL DEFAULT '[]',
+  transferDate TEXT,
+  scannedAt TEXT NOT NULL,
+  updatedAt TEXT NOT NULL,
+  syncedAt TEXT
+);
+CREATE INDEX idx_count_entry_documentId ON count_entry(documentId);
+CREATE UNIQUE INDEX idx_count_entry_doc_asset ON count_entry(documentId, assetId);
+
+CREATE TABLE photo (
+  id TEXT PRIMARY KEY,
+  entryId TEXT NOT NULL,
+  localUri TEXT NOT NULL,
+  remoteUrl TEXT,
+  capturedAt TEXT NOT NULL,
+  uploadStatus TEXT NOT NULL DEFAULT 'queued',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  lastError TEXT
+);
+CREATE INDEX idx_photo_entryId ON photo(entryId);
+`;
+
 export const migrations: Migration[] = [
   {
     version: 1,
     async up(db) {
       await db.execAsync(SCHEMA_V1);
+    },
+  },
+  {
+    version: 2,
+    async up(db) {
+      await db.execAsync(SCHEMA_V2);
     },
   },
 ];
