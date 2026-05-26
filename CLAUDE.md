@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Cross-platform Expo + TypeScript mobile app (iOS + Android) for hotel/restaurant staff to perform physical asset counts against a single-tenant **Carmen API**. Each customer gets one backend URL baked into the build — no in-app property switching.
 
-Development is **plan-driven**: design specs live in `docs/superpowers/specs/`, task-by-task implementation plans in `docs/superpowers/plans/`. Read the relevant spec/plan before extending a feature. The `CarmenApi` interface (`src/data/api/carmenApi.ts`) declares counting-document / scan / photo endpoints that are intentionally **not yet implemented** (`HttpCarmenApi` throws `not_implemented`); those land in later plans.
+Development is **plan-driven**: design specs live in `docs/superpowers/specs/`, task-by-task implementation plans in `docs/superpowers/plans/`. Read the relevant spec/plan before extending a feature. The core **Counting Documents** workflow (create → browse/count a location → scan → photos → commit) is implemented end-to-end; every `CarmenApi` method now exists in both `MockCarmenApi` (the default) and `HttpCarmenApi` (the HTTP contract is real but unverified against a live backend).
 
 ## Commands
 
@@ -22,12 +22,14 @@ npm run format       # prettier --write .  (format:check to verify)
 ```
 
 Run a single test file or pattern:
+
 ```bash
 npx jest src/data/sync/__tests__/syncWorker.test.ts
 npx jest -t "drains the queue"
 ```
 
 Build for a specific customer (selects config at build time):
+
 ```bash
 APP_CUSTOMER=acme-hotel npx expo run:ios
 APP_API_IMPL=http APP_SERVER_BASE_URL=https://... npx expo start  # env overrides
@@ -41,10 +43,10 @@ The `src/` tree is four layers; imports only flow **downward**. Each layer's `RE
 
 - **`platform/`** — config, i18n, secure storage, netinfo. Most stable; depends on nothing else.
 - **`data/`** — SQLite repos, the `CarmenApi` client, mutation queue, sync worker. May import `platform/`. **Never** `features/` or `ui/`.
-- **`features/`** — per-domain modules (`auth/`, `asset/`, `sync/`), owning hooks + Zustand stores + feature components. May import `data/`. **Never** `ui/`.
+- **`features/`** — per-domain modules (`auth/`, `asset/`, `counting/`, `scan/`, `sync/`), owning hooks + Zustand stores + feature components. May import `data/`. **Never** `ui/` — so a feature component that needs a shared widget renders its own (e.g. `CountEntryForm`'s discard dialog) or keeps it in `features/` (`QtyStepper`), never importing `ui/ConfirmDialog`.
 - **`ui/`** — presentational components. May import `features/` hooks. **Never** `data/` or `platform/`.
 
-`app/` holds expo-router file-based routes (the `(tabs)` group, `auth/sign-in`, `assets/`, `sync` modal).
+`app/` holds expo-router file-based routes: the `(tabs)` group (Home / Scan / Documents / More), `auth/sign-in`, `assets/`, the `sync` modal, and `documents/` — `new` (create modal), `[id]/index` (detail), `[id]/assets/[assetId]` (count entry), `[id]/scan`.
 
 ### Dependency-injection style
 
@@ -53,6 +55,7 @@ Most modules are **factory functions** (`createAssetRepo`, `createSyncWorker`, `
 ### Boot sequence (`app/_layout.tsx`)
 
 `RootLayout` runs `initI18n() → openDatabase() → createAuth()` once, shows a spinner until ready, then nests providers: `QueryClient → Db → CarmenApi → MutationQueue → AuthBundle`. The `MutationQueue` is created once from the db and shared via `MutationQueueProvider` so UI mutation hooks enqueue through the same instance the sync worker drains. Inside it mounts:
+
 - **`SyncInfrastructure`** — when a session exists, consumes the shared `mutationQueue` (via `useMutationQueue()`), wires the `syncWorker` to it (driven by netinfo + queue events), and kicks off `catalogSync`.
 - **`RouteGate`** — a `Stack` whose effect redirects on auth status (`signedOut` → `/auth/sign-in`, `signedIn` while in the auth group → `/`). Modal routes (`auth/sign-in`, `sync`) use `presentation: 'modal'`.
 
@@ -77,7 +80,12 @@ Repos depend on `SqlExecutor` (a 4-method interface wrapping `expo-sqlite`), nev
 - **`catalogSync`** — pulls assets via cursor pagination with `updatedSince` + tombstone deletes, then locations; persists the high-water cursor in the `_meta` table.
 - **`mutationQueue`** — wraps `pendingMutationRepo` and notifies subscribers on every change.
 - **`syncWorker`** — drains one mutation at a time. `markInFlight` acts as a lease to prevent concurrent double-fire. Retries with `BACKOFF_MS` exponential backoff; `PERMANENT_ERROR_CODES` (`unauthenticated`, `conflict`, `not_implemented`, `not_found`) fail the mutation immediately.
+- **`syncReconciler`** — after a mutation syncs, writes server-assigned values back to SQLite: running number + status on `document.upsert`, `commitDate` on `document.commit`, `remoteUrl` + `uploadStatus` on `photo.upload`. Passed into the worker by `SyncInfrastructure`; until it runs, the UI shows the running number as "pending".
 - **`syncStore`** (Zustand) — `status / queued / lastSuccessAt / lastError`, surfaced by `<SyncIndicator />` and the `/sync` modal.
+
+### Counting Documents (the core feature)
+
+`features/counting/` holds the React Query read hooks + mutation hooks (over the `countingDocument` / `countEntry` / `photo` repos) plus presentational components; `features/scan/` resolves a scanned or typed code (SQLite `findByCode` first, then `api.getAssetByCode`); screens are under `app/documents/`. **All writes go through `mutationQueue`** (kinds `document.upsert` / `document.commit` / `entry.upsert` / `photo.upload`) and reads come from SQLite via React Query — don't call the `CarmenApi` directly from a screen. The `counting_document`, `count_entry`, and `photo` tables were added in migration v2. Camera scanning uses `expo-camera`; photo capture uses `expo-image-picker` (both device-only — mock them in tests, as `ScannerView`'s test does).
 
 ## Testing
 
