@@ -20,9 +20,6 @@ interface HttpOptions {
   onUnauthenticated?: () => Promise<string | null>;
 }
 
-function notImplemented(name: string): never {
-  throw new CarmenApiError('not_implemented', `${name} is not implemented in Plan 2`);
-}
 
 function qs(params: Record<string, string | number | undefined>): string {
   const entries = Object.entries(params).filter(([, v]) => v !== undefined);
@@ -84,29 +81,70 @@ export class HttpCarmenApi implements CarmenApi {
     return this.client.request<ServerInfo>('GET', '/server-info');
   }
 
-  async listCountingDocuments(_opts: {
-    status?: 'draft' | 'committed';
+  async listCountingDocuments(opts: {
+    status?: CountingDocument['status'];
   }): Promise<CountingDocument[]> {
-    return notImplemented('listCountingDocuments');
+    return this.client.request<CountingDocument[]>(
+      'GET',
+      `/counting-documents${qs({ status: opts.status })}`,
+    );
   }
 
-  async getCountingDocument(_id: string): Promise<CountingDocument | null> {
-    return notImplemented('getCountingDocument');
+  async getCountingDocument(id: string): Promise<CountingDocument | null> {
+    try {
+      return await this.client.request<CountingDocument>(
+        'GET',
+        `/counting-documents/${encodeURIComponent(id)}`,
+      );
+    } catch (err) {
+      if (err instanceof CarmenApiError && err.code === 'not_found') return null;
+      throw err;
+    }
   }
 
-  async upsertCountingDocument(_doc: CountingDocument): Promise<CountingDocument> {
-    return notImplemented('upsertCountingDocument');
+  async upsertCountingDocument(
+    doc: CountingDocument,
+    idempotencyKey?: string,
+  ): Promise<CountingDocument> {
+    return this.client.request<CountingDocument>('POST', '/counting-documents', {
+      body: doc,
+      idempotencyKey,
+    });
   }
 
-  async upsertCountEntries(_d: string, _e: CountEntry[]): Promise<void> {
-    return notImplemented('upsertCountEntries');
+  async upsertCountEntries(
+    documentId: string,
+    entries: CountEntry[],
+    idempotencyKey?: string,
+  ): Promise<void> {
+    await this.client.request<void>(
+      'PUT',
+      `/counting-documents/${encodeURIComponent(documentId)}/entries`,
+      { body: { entries }, idempotencyKey },
+    );
   }
 
-  async commitCountingDocument(_id: string): Promise<CountingDocument> {
-    return notImplemented('commitCountingDocument');
+  async commitCountingDocument(id: string, idempotencyKey?: string): Promise<CountingDocument> {
+    return this.client.request<CountingDocument>(
+      'POST',
+      `/counting-documents/${encodeURIComponent(id)}/commit`,
+      { idempotencyKey },
+    );
   }
 
-  async uploadPhoto(_f: PhotoUpload): Promise<{ photoId: string; remoteUrl: string }> {
-    return notImplemented('uploadPhoto');
+  async uploadPhoto(
+    file: PhotoUpload,
+    idempotencyKey?: string,
+  ): Promise<{ photoId: string; remoteUrl: string }> {
+    const form = new FormData();
+    form.append('file', {
+      uri: file.uri,
+      name: file.id,
+      type: file.mimeType,
+    } as unknown as Blob);
+    return this.client.request<{ photoId: string; remoteUrl: string }>('POST', '/uploads', {
+      body: form,
+      idempotencyKey,
+    });
   }
 }
