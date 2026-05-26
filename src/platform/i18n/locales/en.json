@@ -72,7 +72,30 @@
       "title": "New Counting Document",
       "subtitle": "Select a location to count",
       "empty": "No locations available."
-    }
+    },
+    "field": {
+      "countDate": "Count Date",
+      "commitDate": "Commit Date"
+    },
+    "countFilter": {
+      "all": "All",
+      "counted": "Counted",
+      "uncounted": "Uncounted"
+    },
+    "sort": {
+      "label": "Sort",
+      "code": "Code",
+      "name": "Name",
+      "department": "Dept"
+    },
+    "category": {
+      "all": "All categories"
+    },
+    "detail": {
+      "search": "Search assets…",
+      "empty": "No assets in this location."
+    },
+    "view": "View"
   },
   "more": {
     "signOut": "Sign out"

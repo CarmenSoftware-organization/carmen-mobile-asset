@@ -159,6 +159,7 @@ function RouteGate() {
       <Stack.Screen name="auth/sign-in" options={{ presentation: 'modal' }} />
       <Stack.Screen name="sync" options={{ presentation: 'modal' }} />
       <Stack.Screen name="documents/new" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="documents/[id]" />
       <Stack.Screen name="assets/index" />
       <Stack.Screen name="assets/[id]" />
       <Stack.Screen name="+not-found" />
