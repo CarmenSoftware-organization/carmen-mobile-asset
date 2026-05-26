@@ -1,29 +1,31 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { useT } from '../../src/platform/i18n';
-import { useCountingDocument } from '../../src/features/counting/useCountingDocument';
-import { useAssetCountList } from '../../src/features/counting/useAssetCountList';
-import { useSetCountedQty } from '../../src/features/counting/useSetCountedQty';
-import { CountingDocumentHeader } from '../../src/features/counting/CountingDocumentHeader';
-import { CountFilterChips } from '../../src/features/counting/CountFilterChips';
-import { AssetCountToolbar } from '../../src/features/counting/AssetCountToolbar';
-import { AssetCountListItem } from '../../src/features/counting/AssetCountListItem';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useT } from '../../../src/platform/i18n';
+import { useCountingDocument } from '../../../src/features/counting/useCountingDocument';
+import { useAssetCountList } from '../../../src/features/counting/useAssetCountList';
+import { useSetCountedQty } from '../../../src/features/counting/useSetCountedQty';
+import { CountingDocumentHeader } from '../../../src/features/counting/CountingDocumentHeader';
+import { CountFilterChips } from '../../../src/features/counting/CountFilterChips';
+import { AssetCountToolbar } from '../../../src/features/counting/AssetCountToolbar';
+import { AssetCountListItem } from '../../../src/features/counting/AssetCountListItem';
 import {
   filterSortAssetCounts,
   type CountFilter,
   type AssetSort,
-} from '../../src/features/counting/filterSortAssetCounts';
+} from '../../../src/features/counting/filterSortAssetCounts';
 
 export default function CountingDocumentDetailScreen() {
   const t = useT();
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const documentId = id ?? '';
   const { data: document, isLoading: docLoading } = useCountingDocument(documentId);
   const { data: rows, isLoading: listLoading } = useAssetCountList(
     documentId,
     document?.locationId ?? '',
+    document?.locationName ?? '',
   );
   const setQty = useSetCountedQty(documentId);
 
@@ -92,6 +94,7 @@ export default function CountingDocumentDetailScreen() {
             row={item}
             disabled={locked}
             onChangeQty={(assetId, qty) => setQty.mutate({ assetId, qty })}
+            onView={(assetId) => router.push(`/documents/${documentId}/assets/${assetId}`)}
           />
         )}
         ListEmptyComponent={
