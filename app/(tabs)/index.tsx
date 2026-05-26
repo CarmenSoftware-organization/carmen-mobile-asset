@@ -14,9 +14,30 @@ export default function HomeScreen() {
         <Pressable
           accessibilityRole="button"
           style={styles.primary}
+          onPress={() => router.push('/scan')}
+        >
+          <Text style={styles.primaryText}>{t('home.scanQr')}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          style={styles.primary}
+          onPress={() => router.push('/documents/new')}
+        >
+          <Text style={styles.primaryText}>{t('home.newDocument')}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          style={styles.primary}
+          onPress={() => router.push('/documents')}
+        >
+          <Text style={styles.primaryText}>{t('home.viewDocuments')}</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          style={styles.secondary}
           onPress={() => router.push('/assets')}
         >
-          <Text style={styles.primaryText}>{t('home.browseAssets')}</Text>
+          <Text style={styles.secondaryText}>{t('home.browseAssets')}</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -28,4 +49,13 @@ const styles = StyleSheet.create({
   body: { padding: 16, gap: 12 },
   primary: { backgroundColor: '#2563eb', borderRadius: 8, padding: 16, alignItems: 'center' },
   primaryText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  secondary: {
+    backgroundColor: '#fff',
+    borderColor: '#cbd5e1',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+  },
+  secondaryText: { color: '#2563eb', fontSize: 15, fontWeight: '600' },
 });
