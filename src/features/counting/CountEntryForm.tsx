@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useT } from '../../platform/i18n';
 import { uuid } from '../../platform/id';
 import { QtyStepper } from './QtyStepper';
@@ -23,7 +32,10 @@ interface Props {
   locked?: boolean;
   existingPhotoUris: string[];
   onCapturePhoto: () => Promise<{ uri: string; mimeType: string } | null>;
-  onSave: (values: CountEntryFormValues, newPhotos: { id: string; uri: string; mimeType: string }[]) => void;
+  onSave: (
+    values: CountEntryFormValues,
+    newPhotos: { id: string; uri: string; mimeType: string }[],
+  ) => void;
   onBack: () => void;
 }
 
@@ -52,8 +64,7 @@ export function CountEntryForm({
   const [values, setValues] = useState<CountEntryFormValues>(initial);
   const [showDiscard, setShowDiscard] = useState(false);
   const [newPhotos, setNewPhotos] = useState<{ id: string; uri: string; mimeType: string }[]>([]);
-  const dirty =
-    JSON.stringify(values) !== JSON.stringify(initial) || newPhotos.length > 0;
+  const dirty = JSON.stringify(values) !== JSON.stringify(initial) || newPhotos.length > 0;
   const set = (patch: Partial<CountEntryFormValues>) => setValues((v) => ({ ...v, ...patch }));
 
   const handleBack = () => {
@@ -128,7 +139,12 @@ export function CountEntryForm({
             <Image key={uri} source={{ uri }} accessibilityLabel="photo" style={styles.thumb} />
           ))}
           {newPhotos.map((p) => (
-            <Image key={p.id} source={{ uri: p.uri }} accessibilityLabel="photo" style={styles.thumb} />
+            <Image
+              key={p.id}
+              source={{ uri: p.uri }}
+              accessibilityLabel="photo"
+              style={styles.thumb}
+            />
           ))}
         </View>
         {!locked ? (
@@ -138,7 +154,8 @@ export function CountEntryForm({
             style={styles.photoBtn}
             onPress={async () => {
               const p = await onCapturePhoto();
-              if (p) setNewPhotos((prev) => [...prev, { id: uuid(), uri: p.uri, mimeType: p.mimeType }]);
+              if (p)
+                setNewPhotos((prev) => [...prev, { id: uuid(), uri: p.uri, mimeType: p.mimeType }]);
             }}
           >
             <Text style={styles.photoBtnText}>{t('documents.entry.takePhoto')}</Text>

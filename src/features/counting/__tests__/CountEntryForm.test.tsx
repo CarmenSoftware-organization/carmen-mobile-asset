@@ -111,10 +111,9 @@ describe('CountEntryForm', () => {
     await screen.findByLabelText('photo');
     expect(screen.getAllByLabelText('photo')).toHaveLength(1);
     fireEvent.press(screen.getByText('Save Asset Count'));
-    expect(props.onSave).toHaveBeenCalledWith(
-      expect.any(Object),
-      [expect.objectContaining({ uri: 'file://new.jpg', mimeType: 'image/jpeg' })],
-    );
+    expect(props.onSave).toHaveBeenCalledWith(expect.any(Object), [
+      expect.objectContaining({ uri: 'file://new.jpg', mimeType: 'image/jpeg' }),
+    ]);
   });
 
   it('shows existing photo thumbnails', () => {

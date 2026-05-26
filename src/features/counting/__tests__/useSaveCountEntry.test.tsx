@@ -78,7 +78,11 @@ describe('useSaveCountEntry', () => {
     const kinds = pending.map((m) => m.kind).sort();
     expect(kinds).toEqual(['entry.upsert', 'photo.upload']);
     const photoMut = pending.find((m) => m.kind === 'photo.upload');
-    expect(photoMut?.payload).toMatchObject({ id: 'ph1', uri: 'file://a.jpg', mimeType: 'image/jpeg' });
+    expect(photoMut?.payload).toMatchObject({
+      id: 'ph1',
+      uri: 'file://a.jpg',
+      mimeType: 'image/jpeg',
+    });
   });
 
   it('reuses the existing entry row (no duplicate) on re-save', async () => {
