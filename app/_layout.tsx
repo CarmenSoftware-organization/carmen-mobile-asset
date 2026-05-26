@@ -161,6 +161,7 @@ function RouteGate() {
       <Stack.Screen name="documents/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="documents/[id]/index" />
       <Stack.Screen name="documents/[id]/assets/[assetId]" />
+      <Stack.Screen name="documents/[id]/scan" />
       <Stack.Screen name="assets/index" />
       <Stack.Screen name="assets/[id]" />
       <Stack.Screen name="+not-found" />
