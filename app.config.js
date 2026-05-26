@@ -33,7 +33,13 @@ module.exports = (_ctx) => {
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     scheme: 'carmenasset',
-    plugins: ['expo-router'],
+    plugins: [
+      'expo-router',
+      [
+        'expo-camera',
+        { cameraPermission: 'Allow $(PRODUCT_NAME) to use the camera to scan asset codes.' },
+      ],
+    ],
     assetBundlePatterns: ['**/*'],
     ios: {
       supportsTablet: true,
