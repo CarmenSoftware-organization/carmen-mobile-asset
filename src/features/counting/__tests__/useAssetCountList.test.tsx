@@ -65,11 +65,34 @@ describe('useAssetCountList', () => {
 
   it('returns location assets left-joined with this document entries', async () => {
     const { wrapper } = makeWrapper(db);
-    const { result } = renderHook(() => useAssetCountList('d1', 'loc1'), { wrapper });
+    const { result } = renderHook(() => useAssetCountList('d1', 'loc1', 'L'), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([
       { asset: expect.objectContaining({ id: 'a1' }), countedQty: 3 },
       { asset: expect.objectContaining({ id: 'a2' }), countedQty: 0 },
     ]);
+  });
+
+  it('excludes an asset whose entry location differs from the document location', async () => {
+    await createCountEntryRepo(db).upsert({
+      id: 'e2',
+      documentId: 'd1',
+      assetId: 'a2',
+      unknownCode: null,
+      countQty: 1,
+      location: 'Somewhere Else',
+      observedSerialNo: null,
+      observedSpecification: null,
+      observedRemark: null,
+      comment: '',
+      photoIds: [],
+      transferDate: null,
+      scannedAt: '2026-05-26T08:05:00Z',
+      updatedAt: '2026-05-26T08:05:00Z',
+    });
+    const { wrapper } = makeWrapper(db);
+    const { result } = renderHook(() => useAssetCountList('d1', 'loc1', 'L'), { wrapper });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.map((r) => r.asset.id)).toEqual(['a1']);
   });
 });
