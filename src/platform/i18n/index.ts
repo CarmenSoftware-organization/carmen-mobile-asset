@@ -25,8 +25,8 @@ export async function initI18n({ defaultLocale = 'en' }: InitOptions = {}): Prom
   });
 }
 
-export function t(key: string): string {
-  return normalize(i18next.t(key), key);
+export function t(key: string, opts?: Record<string, unknown>): string {
+  return normalize(i18next.t(key, opts), key);
 }
 
 export async function setLocale(locale: Locale): Promise<void> {
@@ -35,5 +35,8 @@ export async function setLocale(locale: Locale): Promise<void> {
 
 export function useT() {
   const { t: i18nT } = useTranslation();
-  return useCallback((key: string) => normalize(i18nT(key), key), [i18nT]);
+  return useCallback(
+    (key: string, opts?: Record<string, unknown>) => normalize(i18nT(key, opts), key),
+    [i18nT],
+  );
 }

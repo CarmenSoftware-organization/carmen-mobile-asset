@@ -111,6 +111,19 @@
     },
     "view": "ดู"
   },
+  "scan": {
+    "title": "สแกน QR Code",
+    "manualEntry": "หรือกรอกรหัสด้วยตนเอง",
+    "manualPlaceholder": "รหัสสินทรัพย์",
+    "submit": "ค้นหา",
+    "torchOn": "เปิดไฟฉาย",
+    "torchOff": "ปิดไฟฉาย",
+    "permissionMessage": "ต้องเข้าถึงกล้องเพื่อสแกนรหัสสินทรัพย์",
+    "grantPermission": "อนุญาตการเข้าถึงกล้อง",
+    "notFound": "ไม่พบสินทรัพย์สำหรับรหัส: {{code}}",
+    "notFoundInLocation": "ไม่พบสินทรัพย์ในสถานที่: {{location}}",
+    "ok": "ตกลง"
+  },
   "more": {
     "signOut": "ออกจากระบบ"
   },
